@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>15-Min Daily Calisthenics</title>
+<style>
+:root {
+  --bg: #08131E;
+  --surface: #0D1C2B;
+  --card: #112236;
+  --border: #1C3348;
+  --text: #D8EAF6;
+  --muted: #4A6A88;
+  --dim: #2A4560;
+  --warmup: #5BA3D9;
+  --work: #5BC874;
+  --rest: #E8834A;
+  --cooldown: #9B6FE8;
+  --r: 14px;
+  --r-sm: 9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+#app{max-width:460px;margin:0 auto;min-height:100vh;position:relative}
+button{cursor:pointer;font-family:inherit}
+
+/* ── HOME ───────────────────────────────────── */
+#home{display:flex;flex-direction:column;min-height:100vh;padding-bottom:28px}
+.h-header{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 16px}
+.h-logo{font-size:.95rem;font-weight:800;letter-spacing:-.3px;color:var(--text)}
+.h-logo em{color:var(--work);font-style:normal}
+.h-meta{font-size:.72rem;color:var(--muted);margin-top:2px;font-weight:500}
+.vol-btn{background:var(--surface);border:1px solid var(--border);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1rem;transition:.15s}
+.vol-btn:hover{color:var(--text);border-color:var(--dim)}
+
+.week-strip{display:flex;gap:7px;padding:0 20px 20px;justify-content:space-between}
+.wd{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.wd-lbl{font-size:.6rem;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+.wd-btn{width:100%;aspect-ratio:1;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.05rem;transition:.18s;position:relative}
+.wd.selected .wd-btn{border-color:var(--accent,var(--warmup));background:rgba(91,163,217,.1);box-shadow:0 0 0 2px rgba(91,163,217,.2)}
+.wd.rest-day .wd-btn{opacity:.35;cursor:not-allowed}
+.wd.done .wd-btn::after{content:'✓';position:absolute;top:-5px;right:-5px;background:var(--work);color:#052e16;border-radius:50%;width:15px;height:15px;font-size:.5rem;font-weight:900;display:flex;align-items:center;justify-content:center}
+.wd.today .wd-lbl{color:var(--accent,var(--warmup))}
+
+.day-card{margin:0 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.dc-head{padding:18px 20px 15px;display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid var(--border)}
+.dc-icon{font-size:2.2rem;line-height:1}
+.dc-info{flex:1}
+.dc-name{font-size:1.25rem;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+.dc-sub{font-size:.75rem;color:var(--muted);margin-top:4px;font-weight:500}
+.dc-badge{padding:3px 10px;border-radius:20px;font-size:.62rem;font-weight:700;letter-spacing:.5px;margin-top:8px;display:inline-block}
+.dc-phases{display:flex;padding:14px 20px;gap:0;border-bottom:1px solid var(--border)}
+.dc-phase{flex:1;text-align:center;padding:8px 4px;border-radius:var(--r-sm)}
+.dc-phase-lbl{font-size:.58rem;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.dc-phase-val{font-size:.88rem;font-weight:700}
+.dc-phase-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.dc-exercises{padding:14px 20px}
+.dc-ex-title{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.dc-ex-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:.85rem;border-bottom:1px solid rgba(28,51,72,.6)}
+.dc-ex-item:last-child{border-bottom:none}
+.dc-ex-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dc-ex-name{flex:1;font-weight:500}
+.dc-ex-time{color:var(--muted);font-size:.75rem}
+
+.streak-bar{display:flex;align-items:center;gap:12px;margin:16px 20px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 16px}
+.streak-icon{font-size:1.4rem}
+.streak-text{font-size:.82rem;color:var(--muted)}
+.streak-text strong{color:var(--text);font-weight:700}
+
+.start-wrap{padding:16px 20px 0}
+.start-btn{width:100%;padding:17px;border-radius:var(--r);border:none;font-size:1.05rem;font-weight:800;letter-spacing:.3px;transition:.15s;background:var(--work);color:#052e16}
+.start-btn:hover{filter:brightness(1.08)}
+.start-btn:active{transform:scale(.98)}
+.start-btn.rest-mode{background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:not-allowed}
+
+/* ── WORKOUT ────────────────────────────────── */
+#workout{display:none;flex-direction:column;min-height:100vh}
+.w-topbar{display:flex;align-items:center;gap:10px;padding:18px 18px 10px}
+.w-back{background:none;border:none;color:var(--muted);font-size:1.1rem;padding:6px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.w-phase-lbl{flex:1;font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.w-round{font-size:.72rem;color:var(--muted);font-weight:600}
+
+.prog-track{height:3px;background:var(--border);margin:0 18px 14px;border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .8s linear}
+
+.phase-pill{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 18px 14px;padding:8px 16px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border:1.5px solid}
+
+.ex-name{font-size:1.5rem;font-weight:800;text-align:center;letter-spacing:-.4px;padding:0 18px;line-height:1.2;margin-bottom:3px}
+.ex-focus{font-size:.75rem;color:var(--muted);text-align:center;font-weight:500;margin-bottom:14px;padding:0 18px}
+
+.anim-box{width:186px;height:186px;margin:0 auto 14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;flex-shrink:0}
+.anim-box svg{width:78%;height:78%}
+.mode-chip{position:absolute;top:9px;right:9px;padding:3px 9px;border-radius:20px;font-size:.58rem;font-weight:800;letter-spacing:1.5px}
+
+.timer-wrap{text-align:center;margin-bottom:8px;position:relative}
+.timer-num{font-size:5.5rem;font-weight:900;letter-spacing:-4px;line-height:1;font-variant-numeric:tabular-nums;transition:color .4s}
+.timer-sub{font-size:.65rem;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+
+.timer-bar{height:5px;background:var(--border);margin:10px 18px 12px;border-radius:3px;overflow:hidden}
+.timer-bar-fill{height:100%;border-radius:3px;transition:width 1s linear}
+
+.cue-box{margin:0 18px 10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 14px}
+.cue-lbl{font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.cue-txt{font-size:.82rem;line-height:1.45;color:var(--text)}
+
+.next-hint{font-size:.75rem;color:var(--muted);text-align:center;margin-bottom:14px;padding:0 18px}
+.next-hint strong{color:var(--text)}
+
+.w-controls{display:flex;gap:10px;padding:0 18px 24px;margin-top:auto}
+.w-play{flex:1;padding:15px;border-radius:var(--r);border:none;font-size:1rem;font-weight:800;letter-spacing:.2px;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.w-play:active{transform:scale(.97)}
+.w-skip{padding:15px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.85rem;font-weight:700;transition:.15s;display:flex;align-items:center;gap:6px}
+.w-skip:hover{color:var(--text);border-color:var(--dim)}
+
+/* REST SCREEN */
+.rest-screen{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;flex:1}
+.rest-screen.active{display:flex}
+.rest-label{font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--rest);margin-bottom:6px}
+.rest-timer{font-size:7rem;font-weight:900;letter-spacing:-5px;line-height:1;font-variant-numeric:tabular-nums;color:var(--text);margin-bottom:18px}
+.rest-up-lbl{font-size:.72rem;color:var(--muted);margin-bottom:5px;font-weight:600}
+.rest-up-name{font-size:1.4rem;font-weight:800;letter-spacing:-.3px}
+.rest-bar{height:6px;width:200px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:20px}
+.rest-bar-fill{height:100%;background:var(--rest);border-radius:3px;transition:width 1s linear}
+
+/* TRANSITION */
+#transition{position:fixed;inset:0;background:#08131E;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;z-index:200;padding:30px}
+#transition.on{display:flex}
+.tr-phase{font-size:.7rem;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.tr-title{font-size:2.2rem;font-weight:900;letter-spacing:-.8px;margin-bottom:6px}
+.tr-sub{font-size:.9rem;color:var(--muted);margin-bottom:24px}
+.tr-count{font-size:4rem;font-weight:900;letter-spacing:-3px;font-variant-numeric:tabular-nums}
+
+/* COMPLETE */
+#complete{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 20px;text-align:center}
+.comp-ring{width:90px;height:90px;background:rgba(91,200,116,.12);border:2px solid var(--work);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:20px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.comp-title{font-size:1.9rem;font-weight:900;letter-spacing:-.6px;margin-bottom:6px}
+.comp-sub{color:var(--muted);font-size:.88rem;margin-bottom:24px}
+.comp-stats{display:flex;gap:12px;margin-bottom:24px;width:100%}
+.comp-stat{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 10px;text-align:center}
+.comp-stat-val{font-size:1.7rem;font-weight:900;letter-spacing:-.8px}
+.comp-stat-lbl{font-size:.62rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.rule2{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:22px;width:100%;text-align:left}
+.rule2-title{font-size:.6rem;font-weight:700;color:var(--warmup);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.rule2-txt{font-size:.8rem;color:var(--muted);line-height:1.55}
+.rule2-txt strong{color:var(--text)}
+.comp-done{width:100%;padding:16px;border-radius:var(--r);border:none;font-size:1rem;font-weight:800;background:var(--work);color:#052e16;margin-bottom:10px;transition:.15s}
+.comp-done:active{transform:scale(.98)}
+.comp-home{background:none;border:none;color:var(--muted);font-size:.88rem;padding:8px}
+
+/* ── SVG ANIMATION KEYFRAMES ────────────────── */
+/* arm circles */
+@keyframes sp-l{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes sp-r{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+.ac-al{animation:sp-l 1.1s linear infinite;transform-origin:68px 62px}
+.ac-ar{animation:sp-r 1.1s linear infinite;transform-origin:132px 62px}
+
+/* cross-chest arms */
+@keyframes cx-l{0%,100%{transform:rotate(-65deg)}50%{transform:rotate(15deg)}}
+@keyframes cx-r{0%,100%{transform:rotate(65deg)}50%{transform:rotate(-15deg)}}
+.cx-l{animation:cx-l 1.3s ease-in-out infinite;transform-origin:68px 62px}
+.cx-r{animation:cx-r 1.3s ease-in-out infinite;transform-origin:132px 62px}
+
+/* cat-cow back */
+@keyframes cat-a{0%,100%{transform:translateY(-10px)}50%{transform:translateY(10px)}}
+.cat-back{animation:cat-a 2s ease-in-out infinite;transform-origin:center 85px}
+
+/* leg swing */
+@keyframes lsw{0%,100%{transform:rotate(-40deg)}50%{transform:rotate(40deg)}}
+.lsw{animation:lsw 1.4s ease-in-out infinite;transform-origin:100px 110px}
+
+/* hip hinge */
+@keyframes hh{0%,100%{transform:rotate(0deg)}50%{transform:rotate(50deg)}}
+.hh-up{animation:hh 2s ease-in-out infinite;transform-origin:100px 110px}
+
+/* ankle roll */
+@keyframes ank{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.ank-l{animation:ank 1s linear infinite;transform-origin:74px 178px}
+.ank-r{animation:ank 1s linear infinite reverse;transform-origin:126px 178px}
+
+/* scap squeeze */
+@keyframes scl{0%,100%{transform:translateX(0)}50%{transform:translateX(-7px)}}
+@keyframes scr{0%,100%{transform:translateX(0)}50%{transform:translateX(7px)}}
+.sc-l{animation:scl 1.4s ease-in-out infinite}
+.sc-r{animation:scr 1.4s ease-in-out infinite}
+
+/* reach up */
+@keyframes ru{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+.ru-arms{animation:ru 2s ease-in-out infinite}
+
+/* jumping jacks arms/legs */
+@keyframes jj-al{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-68deg)}}
+@keyframes jj-ar{0%,100%{transform:rotate(0deg)}50%{transform:rotate(68deg)}}
+@keyframes jj-ll{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-18deg)}}
+@keyframes jj-lr{0%,100%{transform:rotate(0deg)}50%{transform:rotate(18deg)}}
+.jj-al{animation:jj-al 1s ease-in-out infinite;transform-origin:68px 62px}
+.jj-ar{animation:jj-ar 1s ease-in-out infinite;transform-origin:132px 62px}
+.jj-ll{animation:jj-ll 1s ease-in-out infinite;transform-origin:85px 108px}
+.jj-lr{animation:jj-lr 1s ease-in-out infinite;transform-origin:115px 108px}
+
+/* torso rotate */
+@keyframes tr{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}}
+.tr-up{animation:tr 2s ease-in-out infinite;transform-origin:100px 78px}
+
+/* squat body down */
+@keyframes sq-d{0%,100%{transform:translateY(0)}50%{transform:translateY(30px)}}
+.sq-body{animation:sq-d 2.2s ease-in-out infinite}
+
+/* glute bridge hips */
+@keyframes gb{0%,100%{transform:translateY(0)}50%{transform:translateY(-26px)}}
+.gb-hip{animation:gb 2.2s ease-in-out infinite;transform-origin:120px 105px}
+
+/* plank breathe */
+@keyframes pb{0%,100%{opacity:.85}50%{opacity:1}}
+.pk-body{animation:pb 3s ease-in-out infinite}
+
+/* push-up motion */
+@keyframes pu{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(10deg)}}
+.pu-up{animation:pu 2s ease-in-out infinite;transform-origin:42px 122px}
+
+/* side-tap arm */
+@keyframes st{0%,100%{transform:translateX(0) translateY(0)}30%{transform:translateX(-22px) translateY(6px)}70%{transform:translateX(22px) translateY(6px)}}
+.st-arm{animation:st 2.2s ease-in-out infinite}
+
+/* row pull */
+@keyframes rw{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-22deg)}}
+.rw-arms{animation:rw 2s ease-in-out infinite;transform-origin:46px 100px}
+
+/* bird dog - two frame */
+@keyframes bd-a{0%,45%{opacity:1}55%,100%{opacity:0}}
+@keyframes bd-b{0%,45%{opacity:0}55%,100%{opacity:1}}
+.bd-fa{animation:bd-a 3s ease-in-out infinite}
+.bd-fb{animation:bd-b 3s ease-in-out infinite}
+
+/* dead bug alternating */
+@keyframes db-a{0%,40%{opacity:1}50%,90%{opacity:0}100%{opacity:1}}
+@keyframes db-b{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+.db-fa{animation:db-a 3s ease-in-out infinite}
+.db-fb{animation:db-b 3s ease-in-out infinite}
+
+/* step lunge two-frame */
+@keyframes sl-a{0%,40%{opacity:1}50%,90%{opacity:0}100%{opacity:1}}
+@keyframes sl-b{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+.sl-fa{animation:sl-a 2.5s ease-in-out infinite}
+.sl-fb{animation:sl-b 2.5s ease-in-out infinite}
+
+/* breathing chest */
+@keyframes br{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.15)}}
+.br-chest{animation:br 4s ease-in-out infinite;transform-origin:120px 90px}
+
+/* windmill arm sweep */
+@keyframes wm{0%,100%{transform:rotate(0deg)}50%{transform:rotate(155deg)}}
+.wm-arm{animation:wm 2.5s ease-in-out infinite;transform-origin:90px 85px}
+
+/* reach/overhead */
+@keyframes oh{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+.oh-l{animation:oh 2s ease-in-out infinite;transform-origin:68px 62px}
+@keyframes oh2{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-10deg)}}
+.oh-r{animation:oh2 2s ease-in-out infinite;transform-origin:132px 62px}
+
+/* cobra lift */
+@keyframes co{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-20deg)}}
+.co-up{animation:co 3s ease-in-out infinite;transform-origin:120px 118px}
+
+/* calf stretch lean */
+@keyframes cf{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-6deg)}}
+.cf-body{animation:cf 3s ease-in-out infinite;transform-origin:80px 182px}
+
+/* thread needle arm */
+@keyframes tn{0%,100%{transform:rotate(0deg)}50%{transform:rotate(55deg)}}
+.tn-arm{animation:tn 2.5s ease-in-out infinite;transform-origin:72px 80px}
+
+/* lat stretch lean */
+@keyframes ls{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-12deg)}}
+.ls-body{animation:ls 3s ease-in-out infinite;transform-origin:100px 110px}
+
+/* neck tilt */
+@keyframes nt{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-18deg)}}
+.nt-head{animation:nt 2.5s ease-in-out infinite;transform-origin:100px 36px}
+
+/* figure 4 leg cross */
+@keyframes f4{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-8deg)}}
+.f4-leg{animation:f4 3s ease-in-out infinite;transform-origin:110px 140px}
+
+/* hip flexor tilt */
+@keyframes hf{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-8deg)}}
+.hf-body{animation:hf 3s ease-in-out infinite;transform-origin:90px 80px}
+
+/* walking step */
+@keyframes wk-l{0%,100%{transform:rotate(-25deg)}50%{transform:rotate(25deg)}}
+@keyframes wk-r{0%,100%{transform:rotate(25deg)}50%{transform:rotate(-25deg)}}
+.wk-ll{animation:wk-l 0.9s ease-in-out infinite;transform-origin:85px 108px}
+.wk-lr{animation:wk-r 0.9s ease-in-out infinite;transform-origin:115px 108px}
+@keyframes wk-al{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
+@keyframes wk-ar{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
+.wk-al{animation:wk-al 0.9s ease-in-out infinite;transform-origin:68px 62px}
+.wk-ar{animation:wk-ar 0.9s ease-in-out infinite;transform-origin:132px 62px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="home">
+  <div class="h-header">
+    <div>
+      <div class="h-logo"><em>▶</em> 15-Min Calisthenics</div>
+      <div class="h-meta" id="h-date-str"></div>
+    </div>
+    <button class="vol-btn" onclick="toggleVol()" id="vol-btn" title="Toggle sound">🔊</button>
+  </div>
+
+  <div class="week-strip" id="week-strip"></div>
+  <div class="day-card" id="day-card"></div>
+
+  <div class="streak-bar" id="streak-bar">
+    <div class="streak-icon">🔥</div>
+    <div class="streak-text" id="streak-text">Start your first workout today!</div>
+  </div>
+
+  <div class="start-wrap">
+    <button class="start-btn" id="start-btn" onclick="startWorkout()">Start Workout</button>
+  </div>
+</div>
+
+<!-- WORKOUT -->
+<div id="workout">
+  <div class="w-topbar">
+    <button class="w-back" onclick="confirmBack()">&#8592;</button>
+    <div class="w-phase-lbl" id="w-phase-lbl" style="color:var(--warmup)">Warm-Up</div>
+    <div class="w-round" id="w-round"></div>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="background:var(--warmup);width:0%"></div></div>
+  <div class="phase-pill" id="phase-pill"></div>
+
+  <!-- Exercise area (shown during work/warmup/cooldown) -->
+  <div id="ex-area">
+    <div class="ex-name" id="ex-name"></div>
+    <div class="ex-focus" id="ex-focus"></div>
+    <div class="anim-box" id="anim-box">
+      <div id="anim-svg"></div>
+      <div class="mode-chip" id="mode-chip"></div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-num" id="timer-num">00</div>
+      <div class="timer-sub" id="timer-sub">seconds</div>
+    </div>
+    <div class="timer-bar"><div class="timer-bar-fill" id="timer-bar-fill" style="width:100%"></div></div>
+    <div class="cue-box">
+      <div class="cue-lbl">Technique Cue</div>
+      <div class="cue-txt" id="cue-txt"></div>
+    </div>
+    <div class="next-hint" id="next-hint"></div>
+  </div>
+
+  <!-- Rest area -->
+  <div class="rest-screen" id="rest-screen">
+    <div class="rest-label">REST</div>
+    <div class="rest-timer" id="rest-timer">20</div>
+    <div class="rest-up-lbl">Up next</div>
+    <div class="rest-up-name" id="rest-up-name"></div>
+    <div class="rest-bar"><div class="rest-bar-fill" id="rest-bar-fill" style="width:100%"></div></div>
+  </div>
+
+  <div class="w-controls">
+    <button class="w-play" id="w-play" onclick="togglePause()">
+      <span id="play-icon">⏸</span> <span id="play-lbl">Pause</span>
+    </button>
+    <button class="w-skip" onclick="skipStep()">Skip &#8250;</button>
+  </div>
+</div>
+
+<!-- TRANSITION OVERLAY -->
+<div id="transition">
+  <div class="tr-phase" id="tr-phase"></div>
+  <div class="tr-title" id="tr-title"></div>
+  <div class="tr-sub" id="tr-sub"></div>
+  <div class="tr-count" id="tr-count"></div>
+</div>
+
+<!-- COMPLETE -->
+<div id="complete">
+  <div class="comp-ring">🏆</div>
+  <div class="comp-title">Workout Complete!</div>
+  <div class="comp-sub" id="comp-sub"></div>
+  <div class="comp-stats">
+    <div class="comp-stat"><div class="comp-stat-val" style="color:var(--work)">15</div><div class="comp-stat-lbl">Minutes</div></div>
+    <div class="comp-stat"><div class="comp-stat-val" id="comp-ex-count" style="color:var(--warmup)">9</div><div class="comp-stat-lbl">Exercises</div></div>
+    <div class="comp-stat"><div class="comp-stat-val" id="comp-rounds" style="color:var(--cooldown)">3</div><div class="comp-stat-lbl">Rounds</div></div>
+  </div>
+  <div class="rule2">
+    <div class="rule2-title">📏 Rule of 2 Progress Check</div>
+    <div class="rule2-txt" id="rule2-txt"></div>
+  </div>
+  <button class="comp-done" onclick="finishWorkout()">Done — Mark Complete ✓</button>
+  <button class="comp-home" onclick="goHome()">Back to home</button>
+</div>
+
+</div><!-- #app -->
+
+<script>
+/* =============================================
+   SVG ANIMATION LIBRARY
+   ============================================= */
+const SVG = {
+  armCircles: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<g class="ac-al"><rect x="-6.5" y="0" width="13" height="28.4" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(-219.3)"/>
+<rect x="-5.5" y="0" width="11" height="24.2" rx="5.5" fill="#C8844A" transform="translate(50,40) rotate(-204.4)"/>
+<ellipse cx="38" cy="14" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="ac-ar"><rect x="-6.5" y="0" width="13" height="28.4" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-140.7)"/>
+<rect x="-5.5" y="0" width="11" height="24.2" rx="5.5" fill="#C8844A" transform="translate(150,40) rotate(-155.6)"/>
+<ellipse cx="162" cy="14" rx="6" ry="5.5" fill="#C8844A"/></g>
+<circle cx="68" cy="62" r="36" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" opacity=".2"/>
+<circle cx="132" cy="62" r="36" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" opacity=".2"/>
+</svg>`,
+  crossChest: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<g class="cx-l"><rect x="-6.5" y="0" width="13" height="28.6" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(65.2)"/>
+<rect x="-5.5" y="0" width="11" height="24.2" rx="5.5" fill="#C8844A" transform="translate(42,74) rotate(65.6)"/>
+<ellipse cx="16" cy="86" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="cx-r"><rect x="-6.5" y="0" width="13" height="28.6" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-65.2)"/>
+<rect x="-5.5" y="0" width="11" height="24.2" rx="5.5" fill="#C8844A" transform="translate(158,74) rotate(-65.6)"/>
+<ellipse cx="184" cy="86" rx="6" ry="5.5" fill="#C8844A"/></g>
+</svg>`,
+  catCow: `<svg viewBox="0 0 220 142" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="125" x2="210" y2="125" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="26" y="112" width="170" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<rect x="-6.0" y="0" width="12" height="30.0" rx="6.0" fill="#4A3018" transform="translate(42,88) rotate(0.0)"/>
+<line x1="30" y1="118" x2="54" y2="118" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="30.0" rx="6.0" fill="#4A3018" transform="translate(165,88) rotate(0.0)"/>
+<line x1="153" y1="118" x2="177" y2="118" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(78,90) rotate(0.0)"/>
+<ellipse cx="73" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M62,117 Q73,113 84,117 L86,124 Q73,129 60,124 Z" fill="#E2E2E8"/><line x1="68" y1="121" x2="78" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(138,90) rotate(0.0)"/>
+<ellipse cx="133" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M122,117 Q133,113 144,117 L146,124 Q133,129 120,124 Z" fill="#E2E2E8"/><line x1="128" y1="121" x2="138" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<g class="cat-back"><path d="M42,84 Q90,68 110,64 Q130,68 165,84" stroke="#1D3A5C" stroke-width="16" stroke-linecap="round" fill="none"/>
+<path d="M42,84 Q90,68 110,64 Q130,68 165,84" stroke="#284F7C" stroke-width="5" stroke-linecap="round" fill="none" opacity=".35"/>
+<path d="M13,61 Q26,51 39,61" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="26" cy="68" rx="13" ry="15" fill="#C8844A"/><ellipse cx="21.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="30.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="13" cy="69" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="39" cy="69" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="21" y="81" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M26,82 L42,86" stroke="#C8844A" stroke-width="7" stroke-linecap="round"/></g>
+</svg>`,
+  legSwings: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="8" y="42" width="7" height="138" rx="2" fill="currentColor" opacity=".18"/>
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="44.7" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(79.7)"/>
+<rect x="-5.5" y="0" width="11" height="11.7" rx="5.5" fill="#C8844A" transform="translate(24,70) rotate(59.0)"/>
+<rect x="-6.5" y="0" width="13" height="24.1" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-48.4)"/>
+<rect x="-5.5" y="0" width="11" height="21.5" rx="5.5" fill="#C8844A" transform="translate(150,78) rotate(-21.8)"/>
+<ellipse cx="160" cy="101" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-7.5)"/>
+<ellipse cx="124" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(124,188) rotate(-11.3)"/>
+<ellipse cx="124" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M113,207 Q124,203 135,207 L137,214 Q124,219 111,214 Z" fill="#E2E2E8"/><line x1="119" y1="211" x2="129" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<g class="lsw"><rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(7.5)"/>
+<ellipse cx="76" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(76,188) rotate(11.3)"/>
+<ellipse cx="68" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M57,207 Q68,203 79,207 L81,214 Q68,219 55,214 Z" fill="#E2E2E8"/><line x1="63" y1="211" x2="73" y2="211" stroke="#B8B8C0" stroke-width="1.2"/></g>
+</svg>`,
+  hipHinge: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(7.5)"/>
+<ellipse cx="76" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(76,188) rotate(11.3)"/>
+<ellipse cx="68" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M57,207 Q68,203 79,207 L81,214 Q68,219 55,214 Z" fill="#E2E2E8"/><line x1="63" y1="211" x2="73" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-7.5)"/>
+<ellipse cx="124" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(122,188) rotate(-11.3)"/>
+<ellipse cx="122" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M111,207 Q122,203 133,207 L135,214 Q122,219 109,214 Z" fill="#E2E2E8"/><line x1="117" y1="211" x2="127" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M83,148 L117,148" stroke="#1C2D18" stroke-width="20" stroke-linecap="round"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<g class="hh-up"><path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="28.8" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(56.3)"/>
+<rect x="-5.5" y="0" width="11" height="24.2" rx="5.5" fill="#C8844A" transform="translate(44,78) rotate(24.4)"/>
+<ellipse cx="32" cy="103" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="28.8" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-56.3)"/>
+<rect x="-5.5" y="0" width="11" height="24.2" rx="5.5" fill="#C8844A" transform="translate(156,78) rotate(-24.4)"/>
+<ellipse cx="168" cy="103" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/></g>
+</svg>`,
+  ankleRolls: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="36.8" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(22.4)"/>
+<rect x="-5.5" y="0" width="11" height="25.7" rx="5.5" fill="#C8844A" transform="translate(54,96) rotate(13.5)"/>
+<ellipse cx="46" cy="125" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="36.8" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-22.4)"/>
+<rect x="-5.5" y="0" width="11" height="25.7" rx="5.5" fill="#C8844A" transform="translate(146,96) rotate(-13.5)"/>
+<ellipse cx="154" cy="125" rx="6" ry="5.5" fill="#C8844A"/>
+<g class="ank-l"><ellipse cx="69" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M58,207 Q69,203 80,207 L82,214 Q69,219 56,214 Z" fill="#E2E2E8"/><line x1="64" y1="211" x2="74" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<circle cx="71" cy="204" r="9" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" fill="none" opacity=".45"/></g>
+<g class="ank-r"><ellipse cx="129" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M118,207 Q129,203 140,207 L142,214 Q129,219 116,214 Z" fill="#E2E2E8"/><line x1="124" y1="211" x2="134" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<circle cx="127" cy="204" r="9" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" fill="none" opacity=".45"/></g>
+</svg>`,
+  thoracicWindmill: `<svg viewBox="0 0 220 142" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="125" x2="210" y2="125" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="22" y="112" width="174" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<rect x="-6.0" y="0" width="12" height="24.0" rx="6.0" fill="#C8844A" transform="translate(88,96) rotate(0.0)"/>
+<ellipse cx="82" cy="126" rx="13" ry="5" fill="#7A8080"/><path d="M71,118 Q82,114 93,118 L95,125 Q82,130 69,125 Z" fill="#E2E2E8"/><line x1="77" y1="122" x2="87" y2="122" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-6.0" y="0" width="12" height="24.0" rx="6.0" fill="#C8844A" transform="translate(108,96) rotate(0.0)"/>
+<ellipse cx="102" cy="126" rx="13" ry="5" fill="#7A8080"/><path d="M91,118 Q102,114 113,118 L115,125 Q102,130 89,125 Z" fill="#E2E2E8"/><line x1="97" y1="122" x2="107" y2="122" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M88,90 L108,90" stroke="#1C2D18" stroke-width="22" stroke-linecap="round"/>
+<path d="M42,82 L88,88" stroke="#1D3A5C" stroke-width="16" stroke-linecap="round"/>
+<path d="M42,82 L88,88" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<rect x="-6.0" y="0" width="12" height="24.1" rx="6.0" fill="#C8844A" transform="translate(38,76) rotate(-265.2)"/>
+<ellipse cx="10" cy="74" rx="6" ry="5.5" fill="#C8844A"/>
+<path d="M15,59 Q28,49 41,59" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="28" cy="66" rx="13" ry="15" fill="#C8844A"/><ellipse cx="23.5" cy="64" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="32.5" cy="64" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="15" cy="67" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="41" cy="67" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="23" y="79" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M28,80 L42,83" stroke="#C8844A" stroke-width="7" stroke-linecap="round"/>
+<g class="wm-arm"><rect x="-6.0" y="0" width="12" height="27.8" rx="6.0" fill="#C8844A" transform="translate(88,78) rotate(-120.3)"/>
+<rect x="-5.0" y="0" width="10" height="21.6" rx="5.0" fill="#C8844A" transform="translate(112,64) rotate(-123.7)"/>
+<ellipse cx="133" cy="49" rx="6" ry="5.5" fill="#C8844A"/></g>
+<circle cx="88" cy="82" r="30" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" fill="none" opacity=".25"/>
+</svg>`,
+  scapSqueezes: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<g class="sc-l"><rect x="-6.5" y="0" width="13" height="26.9" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(42.0)"/>
+<rect x="-5.5" y="0" width="11" height="23.3" rx="5.5" fill="#C8844A" transform="translate(50,82) rotate(-31.0)"/>
+<ellipse cx="64" cy="106" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="sc-r"><rect x="-6.5" y="0" width="13" height="26.9" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-42.0)"/>
+<rect x="-5.5" y="0" width="11" height="23.3" rx="5.5" fill="#C8844A" transform="translate(150,82) rotate(31.0)"/>
+<ellipse cx="136" cy="106" rx="6" ry="5.5" fill="#C8844A"/></g>
+<path d="M88,70 L100,70 M112,70 L100,70" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".4"/>
+</svg>`,
+  reachExtension: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<g class="oh-l"><rect x="-6.5" y="0" width="13" height="30.5" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(-211.6)"/>
+<rect x="-5.5" y="0" width="11" height="23.4" rx="5.5" fill="#C8844A" transform="translate(52,36) rotate(-200.0)"/>
+<ellipse cx="42" cy="10" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="oh-r"><rect x="-6.5" y="0" width="13" height="30.5" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-148.4)"/>
+<rect x="-5.5" y="0" width="11" height="23.4" rx="5.5" fill="#C8844A" transform="translate(148,36) rotate(-160.0)"/>
+<ellipse cx="158" cy="10" rx="6" ry="5.5" fill="#C8844A"/></g>
+</svg>`,
+  jumpingJacks: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<g class="jj-al"><rect x="-6.5" y="0" width="13" height="29.7" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(-222.3)"/>
+<rect x="-5.5" y="0" width="11" height="25.1" rx="5.5" fill="#C8844A" transform="translate(48,40) rotate(-208.6)"/>
+<ellipse cx="33" cy="14" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="jj-ar"><rect x="-6.5" y="0" width="13" height="29.7" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-137.7)"/>
+<rect x="-5.5" y="0" width="11" height="25.1" rx="5.5" fill="#C8844A" transform="translate(152,40) rotate(-151.4)"/>
+<ellipse cx="167" cy="14" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="jj-ll"><rect x="-7.5" y="0" width="15" height="40.9" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(21.5)"/>
+<ellipse cx="66" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(66,188) rotate(11.3)"/>
+<ellipse cx="58" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M47,207 Q58,203 69,207 L71,214 Q58,219 45,214 Z" fill="#E2E2E8"/><line x1="53" y1="211" x2="63" y2="211" stroke="#B8B8C0" stroke-width="1.2"/></g>
+<g class="jj-lr"><rect x="-7.5" y="0" width="15" height="40.9" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-21.5)"/>
+<ellipse cx="134" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(134,188) rotate(-11.3)"/>
+<ellipse cx="134" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M123,207 Q134,203 145,207 L147,214 Q134,219 121,214 Z" fill="#E2E2E8"/><line x1="129" y1="211" x2="139" y2="211" stroke="#B8B8C0" stroke-width="1.2"/></g>
+</svg>`,
+  torsoRotation: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(7.5)"/>
+<ellipse cx="76" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(76,188) rotate(11.3)"/>
+<ellipse cx="68" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M57,207 Q68,203 79,207 L81,214 Q68,219 55,214 Z" fill="#E2E2E8"/><line x1="63" y1="211" x2="73" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-7.5)"/>
+<ellipse cx="124" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(122,188) rotate(-11.3)"/>
+<ellipse cx="122" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M111,207 Q122,203 133,207 L135,214 Q122,219 109,214 Z" fill="#E2E2E8"/><line x1="117" y1="211" x2="127" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M83,148 L117,148" stroke="#1C2D18" stroke-width="20" stroke-linecap="round"/>
+<g class="tr-up"><path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="28.0" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(90.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.0" rx="5.5" fill="#C8844A" transform="translate(40,62) rotate(90.0)"/>
+<ellipse cx="14" cy="62" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="28.0" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-90.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.0" rx="5.5" fill="#C8844A" transform="translate(160,62) rotate(-90.0)"/>
+<ellipse cx="186" cy="62" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/></g>
+<path d="M66,80 Q38,92 36,108" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" fill="none" opacity=".4"/>
+</svg>`,
+  squatReach: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g class="sl-fa"><path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="26.9" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(42.0)"/>
+<rect x="-5.5" y="0" width="11" height="23.4" rx="5.5" fill="#C8844A" transform="translate(50,82) rotate(20.0)"/>
+<ellipse cx="40" cy="107" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="26.9" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-42.0)"/>
+<rect x="-5.5" y="0" width="11" height="23.4" rx="5.5" fill="#C8844A" transform="translate(150,82) rotate(-20.0)"/>
+<ellipse cx="160" cy="107" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="sl-fb"><path d="M87,47 Q100,37 113,47" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="54" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="52" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="52" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="55" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="55" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="68" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,84 L130,84 L116,138 L84,138 Z" fill="#1D3A5C"/><path d="M100,84 L112,84 L107,138 L100,138 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,138 L116,138 L120,172 L80,172 Z" fill="#1C2D18"/><line x1="100" y1="140" x2="100" y2="172" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<ellipse cx="62" cy="94" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-10 62 94)"/>
+<ellipse cx="138" cy="94" rx="12" ry="9" fill="#1D3A5C" transform="rotate(10 138 94)"/>
+<rect x="-6.5" y="0" width="13" height="32.0" rx="6.5" fill="#C8844A" transform="translate(70,91) rotate(90.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.0" rx="5.5" fill="#C8844A" transform="translate(38,91) rotate(90.0)"/>
+<ellipse cx="13" cy="91" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="32.0" rx="6.5" fill="#C8844A" transform="translate(130,91) rotate(-90.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.0" rx="5.5" fill="#C8844A" transform="translate(162,91) rotate(-90.0)"/>
+<ellipse cx="187" cy="91" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.5" y="0" width="15" height="36.9" rx="7.5" fill="#C8844A" transform="translate(82,172) rotate(12.5)"/>
+<ellipse cx="72" cy="210" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="18.4" rx="6.0" fill="#C8844A" transform="translate(72,210) rotate(12.5)"/>
+<ellipse cx="64" cy="235" rx="13" ry="5" fill="#7A8080"/><path d="M53,227 Q64,223 75,227 L77,234 Q64,239 51,234 Z" fill="#E2E2E8"/><line x1="59" y1="231" x2="69" y2="231" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="36.9" rx="7.5" fill="#C8844A" transform="translate(118,172) rotate(-12.5)"/>
+<ellipse cx="128" cy="210" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="18.4" rx="6.0" fill="#C8844A" transform="translate(128,210) rotate(-12.5)"/>
+<ellipse cx="128" cy="235" rx="13" ry="5" fill="#7A8080"/><path d="M117,227 Q128,223 139,227 L141,234 Q128,239 115,234 Z" fill="#E2E2E8"/><line x1="123" y1="231" x2="133" y2="231" stroke="#B8B8C0" stroke-width="1.2"/></g>
+</svg>`,
+  inclinePushUp: `<svg viewBox="0 0 220 188" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="178" x2="210" y2="178" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="6" y="110" width="58" height="14" rx="4" fill="#4A3018"/>
+<rect x="6" y="124" width="58" height="52" rx="2" fill="#5C4026" opacity=".6"/>
+<line x1="6" y1="124" x2="64" y2="124" stroke="#4A3018" stroke-width="2"/>
+<rect x="-7.0" y="0" width="14" height="38.0" rx="7.0" fill="#C8844A" transform="translate(152,138) rotate(0.0)"/>
+<rect x="-7.0" y="0" width="14" height="38.0" rx="7.0" fill="#C8844A" transform="translate(164,138) rotate(0.0)"/>
+<ellipse cx="153" cy="182" rx="15" ry="5" fill="#7A8080"/><path d="M139,174 Q149,170 161,174 L163,181 Q149,186 139,181 Z" fill="#E2E2E8"/>
+<ellipse cx="165" cy="182" rx="15" ry="5" fill="#7A8080"/><path d="M151,174 Q161,170 173,174 L175,181 Q161,186 151,181 Z" fill="#E2E2E8"/>
+<path d="M150,138 L166,138" stroke="#1C2D18" stroke-width="18" stroke-linecap="round"/>
+<g class="pu-up"><rect x="-6.0" y="0" width="12" height="41.2" rx="6.0" fill="#C8844A" transform="translate(42,118) rotate(-112.8)"/>
+<rect x="-6.0" y="0" width="12" height="17.0" rx="6.0" fill="#C8844A" transform="translate(42,118) rotate(-135.0)"/>
+<path d="M80,102 L158,120" stroke="#1D3A5C" stroke-width="16" stroke-linecap="round"/>
+<path d="M80,102 L158,120" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<path d="M142,116 L172,124 L170,132 L140,124 Z" fill="#1C2D18"/>
+<rect x="-5.0" y="0" width="10" height="11.3" rx="5.0" fill="#C8844A" transform="translate(158,120) rotate(-135.0)"/>
+<path d="M157,95 Q170,85 183,95" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="170" cy="102" rx="13" ry="15" fill="#C8844A"/><ellipse cx="165.5" cy="100" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="174.5" cy="100" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="157" cy="103" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="183" cy="103" rx="2.5" ry="3.5" fill="#A06830"/></g>
+</svg>`,
+  deadBug: `<svg viewBox="0 0 240 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g class="db-fa"><line x1="10" y1="110" x2="210" y2="110" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="28" y="98" width="182" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M11,49 Q24,39 37,49" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="24" cy="56" rx="13" ry="15" fill="#C8844A"/><ellipse cx="19.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="28.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="11" cy="57" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="37" cy="57" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="19" y="69" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M24,70 L128,76" stroke="#1D3A5C" stroke-width="14" stroke-linecap="round"/>
+<path d="M24,70 L128,76" stroke="#284F7C" stroke-width="4" stroke-linecap="round" opacity=".3"/>
+<path d="M100,76 L148,78 L148,98 L100,96 Z" fill="#1C2D18"/>
+<rect x="-6.0" y="0" width="12" height="24.0" rx="6.0" fill="#C8844A" transform="translate(72,74) rotate(-180.0)"/>
+<rect x="-5.0" y="0" width="10" height="20.0" rx="5.0" fill="#C8844A" transform="translate(72,50) rotate(-180.0)"/>
+<ellipse cx="72" cy="26" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.0" y="0" width="12" height="24.0" rx="6.0" fill="#C8844A" transform="translate(108,74) rotate(-180.0)"/>
+<rect x="-5.0" y="0" width="10" height="20.0" rx="5.0" fill="#C8844A" transform="translate(108,50) rotate(-180.0)"/>
+<ellipse cx="108" cy="26" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.0" y="0" width="14" height="30.0" rx="7.0" fill="#C8844A" transform="translate(120,82) rotate(-90.0)"/>
+<rect x="-7.0" y="0" width="14" height="42.4" rx="7.0" fill="#C8844A" transform="translate(150,82) rotate(-81.9)"/>
+<ellipse cx="194" cy="88" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="22.4" rx="6.0" fill="#C8844A" transform="translate(194,88) rotate(-79.7)"/>
+<ellipse cx="216" cy="98" rx="15" ry="5" fill="#7A8080"/><path d="M202,90 Q212,86 224,90 L226,97 Q212,102 202,97 Z" fill="#E2E2E8"/>
+<rect x="-7.0" y="0" width="14" height="17.9" rx="7.0" fill="#C8844A" transform="translate(132,82) rotate(-26.6)"/>
+<rect x="-6.0" y="0" width="12" height="12.0" rx="6.0" fill="#C8844A" transform="translate(140,98) rotate(0.0)"/>
+<ellipse cx="140" cy="112" rx="9" ry="8" fill="#A06830"/></g>
+<g class="db-fb"><line x1="10" y1="110" x2="210" y2="110" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="28" y="98" width="182" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M11,49 Q24,39 37,49" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="24" cy="56" rx="13" ry="15" fill="#C8844A"/><ellipse cx="19.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="28.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="11" cy="57" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="37" cy="57" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="19" y="69" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M24,70 L128,76" stroke="#1D3A5C" stroke-width="14" stroke-linecap="round"/>
+<path d="M24,70 L128,76" stroke="#284F7C" stroke-width="4" stroke-linecap="round" opacity=".3"/>
+<path d="M100,76 L148,78 L148,98 L100,96 Z" fill="#1C2D18"/>
+<rect x="-6.0" y="0" width="12" height="24.0" rx="6.0" fill="#C8844A" transform="translate(72,74) rotate(-180.0)"/>
+<rect x="-5.0" y="0" width="10" height="20.0" rx="5.0" fill="#C8844A" transform="translate(72,50) rotate(-180.0)"/>
+<ellipse cx="72" cy="26" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.0" y="0" width="12" height="24.0" rx="6.0" fill="#C8844A" transform="translate(108,74) rotate(-180.0)"/>
+<rect x="-5.0" y="0" width="10" height="20.0" rx="5.0" fill="#C8844A" transform="translate(108,50) rotate(-180.0)"/>
+<ellipse cx="108" cy="26" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.0" y="0" width="14" height="30.3" rx="7.0" fill="#C8844A" transform="translate(132,82) rotate(-82.4)"/>
+<rect x="-7.0" y="0" width="14" height="40.8" rx="7.0" fill="#C8844A" transform="translate(162,86) rotate(-78.7)"/>
+<ellipse cx="204" cy="94" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(204,94) rotate(-78.7)"/>
+<ellipse cx="224" cy="104" rx="15" ry="5" fill="#7A8080"/><path d="M210,96 Q220,92 232,96 L234,103 Q220,108 210,103 Z" fill="#E2E2E8"/>
+<rect x="-7.0" y="0" width="14" height="17.9" rx="7.0" fill="#C8844A" transform="translate(120,82) rotate(-26.6)"/>
+<rect x="-6.0" y="0" width="12" height="12.0" rx="6.0" fill="#C8844A" transform="translate(128,98) rotate(0.0)"/>
+<ellipse cx="128" cy="112" rx="9" ry="8" fill="#A06830"/></g>
+</svg>`,
+  gluteBridge: `<svg viewBox="0 0 240 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="110" x2="210" y2="110" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="22" y="98" width="190" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M9,45 Q22,35 35,45" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="22" cy="52" rx="13" ry="15" fill="#C8844A"/><ellipse cx="17.5" cy="50" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="26.5" cy="50" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="9" cy="53" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="35" cy="53" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="17" y="65" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M22,66 L110,72" stroke="#1D3A5C" stroke-width="14" stroke-linecap="round"/>
+<path d="M22,66 L110,72" stroke="#284F7C" stroke-width="4" stroke-linecap="round" opacity=".3"/>
+<rect x="-6.0" y="0" width="12" height="26.1" rx="6.0" fill="#C8844A" transform="translate(72,70) rotate(4.4)"/>
+<rect x="-6.0" y="0" width="12" height="24.1" rx="6.0" fill="#C8844A" transform="translate(100,72) rotate(4.8)"/>
+<rect x="-7.0" y="0" width="14" height="14.0" rx="7.0" fill="#C8844A" transform="translate(172,96) rotate(0.0)"/>
+<ellipse cx="164" cy="116" rx="15" ry="5" fill="#7A8080"/><path d="M179,108 Q169,104 157,108 L155,115 Q169,120 179,115 Z" fill="#E2E2E8"/>
+<rect x="-7.0" y="0" width="14" height="14.0" rx="7.0" fill="#C8844A" transform="translate(188,96) rotate(0.0)"/>
+<ellipse cx="180" cy="116" rx="15" ry="5" fill="#7A8080"/><path d="M195,108 Q185,104 173,108 L171,115 Q185,120 195,115 Z" fill="#E2E2E8"/>
+<g class="gb-hip"><path d="M110,72 L156,74 L156,94 L110,92 Z" fill="#1C2D18"/>
+<rect x="-7.0" y="0" width="14" height="33.1" rx="7.0" fill="#C8844A" transform="translate(118,80) rotate(-65.0)"/>
+<rect x="-7.0" y="0" width="14" height="24.1" rx="7.0" fill="#C8844A" transform="translate(148,94) rotate(-85.2)"/>
+<rect x="-7.0" y="0" width="14" height="28.6" rx="7.0" fill="#C8844A" transform="translate(136,80) rotate(-65.2)"/>
+<rect x="-7.0" y="0" width="14" height="26.3" rx="7.0" fill="#C8844A" transform="translate(162,92) rotate(-81.3)"/></g>
+</svg>`,
+  chairSquat: `<svg viewBox="0 0 200 218" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="56" y="132" width="88" height="10" rx="4" fill="#4A3018"/>
+<line x1="64" y1="142" x2="64" y2="175" stroke="#5C4026" stroke-width="5" stroke-linecap="round"/>
+<line x1="136" y1="142" x2="136" y2="175" stroke="#5C4026" stroke-width="5" stroke-linecap="round"/>
+<line x1="64" y1="100" x2="64" y2="132" stroke="#5C4026" stroke-width="3" stroke-linecap="round" opacity=".4"/>
+<rect x="-7.0" y="0" width="14" height="25.3" rx="7.0" fill="#C8844A" transform="translate(76,150) rotate(9.1)"/>
+<ellipse cx="70" cy="177" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="23.3" rx="6.0" fill="#C8844A" transform="translate(70,177) rotate(9.9)"/>
+<ellipse cx="62" cy="207" rx="13" ry="5" fill="#7A8080"/><path d="M51,199 Q62,195 73,199 L75,206 Q62,211 49,206 Z" fill="#E2E2E8"/><line x1="57" y1="203" x2="67" y2="203" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.0" y="0" width="14" height="25.3" rx="7.0" fill="#C8844A" transform="translate(124,150) rotate(-9.1)"/>
+<ellipse cx="130" cy="177" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="23.3" rx="6.0" fill="#C8844A" transform="translate(130,177) rotate(-9.9)"/>
+<ellipse cx="130" cy="207" rx="13" ry="5" fill="#7A8080"/><path d="M119,199 Q130,195 141,199 L143,206 Q130,211 117,206 Z" fill="#E2E2E8"/><line x1="125" y1="203" x2="135" y2="203" stroke="#B8B8C0" stroke-width="1.2"/>
+<g class="sq-body"><path d="M77,148 L123,148 L121,132 L79,132 Z" fill="#1C2D18"/>
+<path d="M70,92 L130,92 L116,132 L84,132 Z" fill="#1D3A5C"/><path d="M100,92 L112,92 L107,132 L100,132 Z" fill="#284F7C" opacity=".2"/>
+<ellipse cx="62" cy="104" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 104)"/>
+<ellipse cx="138" cy="104" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 104)"/>
+<rect x="-6.5" y="0" width="13" height="25.5" rx="6.5" fill="#C8844A" transform="translate(68,100) rotate(45.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.8" rx="5.5" fill="#C8844A" transform="translate(50,118) rotate(15.3)"/>
+<ellipse cx="42" cy="143" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="25.5" rx="6.5" fill="#C8844A" transform="translate(132,100) rotate(-45.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.8" rx="5.5" fill="#C8844A" transform="translate(150,118) rotate(-15.3)"/>
+<ellipse cx="158" cy="143" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="95" y="76" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M87,55 Q100,45 113,55" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="62" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="60" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="60" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="63" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="63" rx="2.5" ry="3.5" fill="#A06830"/></g>
+</svg>`,
+  forearmPlank: `<svg viewBox="0 0 240 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="99" x2="210" y2="99" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="28" y="87" width="182" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<g class="pk-body"><path d="M56,70 L192,64" stroke="#1D3A5C" stroke-width="18" stroke-linecap="round"/>
+<path d="M56,70 L192,64" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<path d="M150,66 L192,64" stroke="#1C2D18" stroke-width="18" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="18.0" rx="6.0" fill="#C8844A" transform="translate(42,72) rotate(0.0)"/>
+<line x1="32" y1="90" x2="52" y2="90" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="20.1" rx="6.0" fill="#C8844A" transform="translate(66,70) rotate(-5.7)"/>
+<line x1="58" y1="90" x2="78" y2="90" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<ellipse cx="187" cy="92" rx="15" ry="5" fill="#7A8080"/><path d="M202,84 Q192,80 180,84 L178,91 Q192,96 202,91 Z" fill="#E2E2E8"/>
+<ellipse cx="197" cy="92" rx="15" ry="5" fill="#7A8080"/><path d="M212,84 Q202,80 190,84 L188,91 Q202,96 212,91 Z" fill="#E2E2E8"/>
+<path d="M7,51 Q20,41 33,51" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="20" cy="58" rx="13" ry="15" fill="#C8844A"/><ellipse cx="15.5" cy="56" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="24.5" cy="56" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="7" cy="59" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="33" cy="59" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="15" y="71" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M20,72 L42,73" stroke="#C8844A" stroke-width="8" stroke-linecap="round"/></g>
+</svg>`,
+  stepBackLunge: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g class="sl-fa"><path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="36.8" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(22.4)"/>
+<rect x="-5.5" y="0" width="11" height="25.7" rx="5.5" fill="#C8844A" transform="translate(54,96) rotate(13.5)"/>
+<ellipse cx="46" cy="125" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="36.8" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-22.4)"/>
+<rect x="-5.5" y="0" width="11" height="25.7" rx="5.5" fill="#C8844A" transform="translate(146,96) rotate(-13.5)"/>
+<ellipse cx="154" cy="125" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="sl-fb"><path d="M95,19 Q108,9 121,19" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="108" cy="26" rx="13" ry="15" fill="#C8844A"/><ellipse cx="103.5" cy="24" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="112.5" cy="24" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="95" cy="27" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="121" cy="27" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="103" y="40" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M78,54 L138,54 L124,112 L92,112 Z" fill="#1D3A5C"/><path d="M108,54 L120,54 L115,112 L108,112 Z" fill="#284F7C" opacity=".2"/>
+<path d="M92,112 L124,112 L128,140 L88,140 Z" fill="#1C2D18"/><line x1="108" y1="114" x2="108" y2="140" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<ellipse cx="70" cy="66" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 70 66)"/>
+<ellipse cx="146" cy="66" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 146 66)"/>
+<rect x="-6.5" y="0" width="13" height="29.7" rx="6.5" fill="#C8844A" transform="translate(76,65) rotate(32.6)"/>
+<rect x="-5.5" y="0" width="11" height="25.3" rx="5.5" fill="#C8844A" transform="translate(60,90) rotate(-9.1)"/>
+<ellipse cx="66" cy="119" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="29.7" rx="6.5" fill="#C8844A" transform="translate(140,65) rotate(-32.6)"/>
+<rect x="-5.5" y="0" width="11" height="25.3" rx="5.5" fill="#C8844A" transform="translate(156,90) rotate(9.1)"/>
+<ellipse cx="150" cy="119" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.5" y="0" width="15" height="34.9" rx="7.5" fill="#C8844A" transform="translate(88,140) rotate(13.2)"/>
+<ellipse cx="78" cy="176" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(78,176) rotate(11.3)"/>
+<ellipse cx="70" cy="203" rx="13" ry="5" fill="#7A8080"/><path d="M59,195 Q70,191 81,195 L83,202 Q70,207 57,202 Z" fill="#E2E2E8"/><line x1="65" y1="199" x2="75" y2="199" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="45.3" rx="7.5" fill="#C8844A" transform="translate(128,140) rotate(-41.4)"/>
+<ellipse cx="160" cy="176" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(160,176) rotate(-11.3)"/>
+<ellipse cx="160" cy="203" rx="13" ry="5" fill="#7A8080"/><path d="M149,195 Q160,191 171,195 L173,202 Q160,207 147,202 Z" fill="#E2E2E8"/><line x1="155" y1="199" x2="165" y2="199" stroke="#B8B8C0" stroke-width="1.2"/>
+<line x1="10" y1="190" x2="210" y2="190" stroke="currentColor" stroke-width="1.5" opacity=".2"/></g>
+</svg>`,
+  birdDog: `<svg viewBox="0 0 210 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g class="bd-fa"><line x1="10" y1="124" x2="210" y2="124" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="24" y="113" width="170" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<rect x="-6.0" y="0" width="12" height="30.0" rx="6.0" fill="#C8844A" transform="translate(40,88) rotate(0.0)"/>
+<line x1="30" y1="118" x2="50" y2="118" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(80,90) rotate(0.0)"/>
+<ellipse cx="75" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M64,117 Q75,113 86,117 L88,124 Q75,129 62,124 Z" fill="#E2E2E8"/><line x1="70" y1="121" x2="80" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(136,90) rotate(0.0)"/>
+<ellipse cx="131" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M120,117 Q131,113 142,117 L144,124 Q131,129 118,124 Z" fill="#E2E2E8"/><line x1="126" y1="121" x2="136" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M40,84 L136,84" stroke="#1D3A5C" stroke-width="18" stroke-linecap="round"/>
+<path d="M40,84 L136,84" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<path d="M100,84 L136,84" stroke="#1C2D18" stroke-width="16" stroke-linecap="round"/>
+<path d="M9,61 Q22,51 35,61" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="22" cy="68" rx="13" ry="15" fill="#C8844A"/><ellipse cx="17.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="26.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="9" cy="69" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="35" cy="69" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="17" y="80" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M22,81 L40,84" stroke="#C8844A" stroke-width="7" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="31.0" rx="6.0" fill="#C8844A" transform="translate(136,76) rotate(-104.9)"/>
+<rect x="-5.0" y="0" width="10" height="28.6" rx="5.0" fill="#C8844A" transform="translate(166,68) rotate(-102.1)"/>
+<ellipse cx="197" cy="60" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.0" y="0" width="14" height="27.2" rx="7.0" fill="#C8844A" transform="translate(80,88) rotate(72.9)"/>
+<rect x="-6.0" y="0" width="12" height="26.3" rx="6.0" fill="#C8844A" transform="translate(54,96) rotate(81.3)"/>
+<ellipse cx="19" cy="106" rx="15" ry="5" fill="#7A8080"/><path d="M34,98 Q24,94 12,98 L10,105 Q24,110 34,105 Z" fill="#E2E2E8"/></g>
+<g class="bd-fb"><line x1="10" y1="124" x2="210" y2="124" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="24" y="113" width="170" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<rect x="-6.0" y="0" width="12" height="30.0" rx="6.0" fill="#C8844A" transform="translate(40,88) rotate(0.0)"/>
+<line x1="30" y1="118" x2="50" y2="118" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(80,90) rotate(0.0)"/>
+<ellipse cx="75" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M64,117 Q75,113 86,117 L88,124 Q75,129 62,124 Z" fill="#E2E2E8"/><line x1="70" y1="121" x2="80" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(136,90) rotate(0.0)"/>
+<ellipse cx="131" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M120,117 Q131,113 142,117 L144,124 Q131,129 118,124 Z" fill="#E2E2E8"/><line x1="126" y1="121" x2="136" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M40,84 L136,84" stroke="#1D3A5C" stroke-width="18" stroke-linecap="round"/>
+<path d="M40,84 L136,84" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<path d="M100,84 L136,84" stroke="#1C2D18" stroke-width="16" stroke-linecap="round"/>
+<path d="M9,61 Q22,51 35,61" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="22" cy="68" rx="13" ry="15" fill="#C8844A"/><ellipse cx="17.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="26.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="9" cy="69" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="35" cy="69" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="17" y="80" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M22,81 L40,84" stroke="#C8844A" stroke-width="7" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="27.2" rx="6.0" fill="#C8844A" transform="translate(40,76) rotate(-252.9)"/>
+<rect x="-5.0" y="0" width="10" height="11.7" rx="5.0" fill="#C8844A" transform="translate(14,68) rotate(-239.0)"/>
+<ellipse cx="1" cy="60" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.0" y="0" width="14" height="27.2" rx="7.0" fill="#C8844A" transform="translate(136,88) rotate(-72.9)"/>
+<rect x="-6.0" y="0" width="12" height="26.3" rx="6.0" fill="#C8844A" transform="translate(162,96) rotate(-81.3)"/>
+<ellipse cx="188" cy="106" rx="15" ry="5" fill="#7A8080"/><path d="M174,98 Q184,94 196,98 L198,105 Q184,110 174,105 Z" fill="#E2E2E8"/></g>
+</svg>`,
+  inclineRow: `<svg viewBox="0 0 220 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="180" x2="210" y2="180" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="6" y="18" width="9" height="154" rx="3" fill="currentColor" opacity=".18"/>
+<line x1="15" y1="74" x2="32" y2="74" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity=".35"/>
+<rect x="-7.0" y="0" width="14" height="16.0" rx="7.0" fill="#C8844A" transform="translate(150,162) rotate(0.0)"/>
+<rect x="-7.0" y="0" width="14" height="16.0" rx="7.0" fill="#C8844A" transform="translate(165,162) rotate(0.0)"/>
+<ellipse cx="142" cy="184" rx="15" ry="5" fill="#7A8080"/><path d="M157,176 Q147,172 135,176 L133,183 Q147,188 157,183 Z" fill="#E2E2E8"/>
+<ellipse cx="157" cy="184" rx="15" ry="5" fill="#7A8080"/><path d="M172,176 Q162,172 150,176 L148,183 Q162,188 172,183 Z" fill="#E2E2E8"/>
+<path d="M148,162 L167,162" stroke="#1C2D18" stroke-width="18" stroke-linecap="round"/>
+<rect x="-7.0" y="0" width="14" height="33.5" rx="7.0" fill="#C8844A" transform="translate(140,130) rotate(-17.4)"/>
+<rect x="-7.0" y="0" width="14" height="32.8" rx="7.0" fill="#C8844A" transform="translate(158,130) rotate(-12.3)"/>
+<g class="rw-arms"><path d="M68,86 L130,86 L116,132 L82,132 Z" fill="#1D3A5C"/><path d="M99,86 L111,86 L106,132 L99,132 Z" fill="#284F7C" opacity=".2"/>
+<ellipse cx="62" cy="97" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-20 62 97)"/>
+<ellipse cx="128" cy="97" rx="12" ry="9" fill="#1D3A5C" transform="rotate(20 128 97)"/>
+<rect x="95" y="70" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M87,49 Q100,39 113,49" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="56" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="57" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="57" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="10.8" rx="6.0" fill="#C8844A" transform="translate(130,126) rotate(-68.2)"/>
+<rect x="-6.5" y="0" width="13" height="35.6" rx="6.5" fill="#C8844A" transform="translate(70,104) rotate(-231.8)"/>
+<rect x="-5.5" y="0" width="11" height="27.2" rx="5.5" fill="#C8844A" transform="translate(42,82) rotate(-252.9)"/>
+<ellipse cx="13" cy="72" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="40.5" rx="6.5" fill="#C8844A" transform="translate(76,110) rotate(-237.1)"/>
+<rect x="-5.5" y="0" width="11" height="27.9" rx="5.5" fill="#C8844A" transform="translate(42,88) rotate(-249.0)"/>
+<ellipse cx="13" cy="76" rx="6" ry="5.5" fill="#C8844A"/></g>
+</svg>`,
+  plankSideTap: `<svg viewBox="0 0 240 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="99" x2="210" y2="99" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="28" y="87" width="182" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<g class="pk-body"><path d="M56,70 L192,64" stroke="#1D3A5C" stroke-width="18" stroke-linecap="round"/>
+<path d="M56,70 L192,64" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<path d="M150,66 L192,64" stroke="#1C2D18" stroke-width="18" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="18.0" rx="6.0" fill="#C8844A" transform="translate(42,72) rotate(0.0)"/>
+<line x1="32" y1="90" x2="52" y2="90" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="20.1" rx="6.0" fill="#C8844A" transform="translate(66,70) rotate(-5.7)"/>
+<line x1="58" y1="90" x2="78" y2="90" stroke="#7A8080" stroke-width="5" stroke-linecap="round"/>
+<ellipse cx="187" cy="92" rx="15" ry="5" fill="#7A8080"/><path d="M202,84 Q192,80 180,84 L178,91 Q192,96 202,91 Z" fill="#E2E2E8"/>
+<ellipse cx="197" cy="92" rx="15" ry="5" fill="#7A8080"/><path d="M212,84 Q202,80 190,84 L188,91 Q202,96 212,91 Z" fill="#E2E2E8"/>
+<path d="M7,51 Q20,41 33,51" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="20" cy="58" rx="13" ry="15" fill="#C8844A"/><ellipse cx="15.5" cy="56" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="24.5" cy="56" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="7" cy="59" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="33" cy="59" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="15" y="71" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M20,72 L42,73" stroke="#C8844A" stroke-width="8" stroke-linecap="round"/></g>
+<g class="st-arm"><rect x="-6.0" y="0" width="12" height="16.0" rx="6.0" fill="#C8844A" transform="translate(118,66) rotate(-180.0)"/>
+<ellipse cx="118" cy="46" rx="6" ry="5.5" fill="#C8844A"/></g>
+</svg>`,
+  doorwayStretch: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="6" y="38" width="8" height="148" rx="2" fill="currentColor" opacity=".18"/>
+<rect x="186" y="38" width="8" height="148" rx="2" fill="currentColor" opacity=".18"/>
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="52" cy="64" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-90 52 64)"/>
+<ellipse cx="148" cy="64" rx="12" ry="9" fill="#1D3A5C" transform="rotate(90 148 64)"/>
+<rect x="-6.5" y="0" width="13" height="48.0" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(90.0)"/>
+<ellipse cx="14" cy="62" rx="6" ry="5.5" fill="#C8844A"/>
+<line x1="14" y1="58" x2="14" y2="66" stroke="#1C0E08" stroke-width="3" opacity=".5"/>
+<rect x="-6.5" y="0" width="13" height="48.0" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-90.0)"/>
+<ellipse cx="186" cy="62" rx="6" ry="5.5" fill="#C8844A"/>
+<line x1="186" y1="58" x2="186" y2="66" stroke="#1C0E08" stroke-width="3" opacity=".5"/>
+<path d="M100,52 L104,70" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" stroke-linecap="round" opacity=".5"/>
+</svg>`,
+  childsPose: `<svg viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="118" x2="210" y2="118" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="22" y="108" width="172" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M100,90 L154,86" stroke="#1C2D18" stroke-width="22" stroke-linecap="round"/>
+<rect x="-7.0" y="0" width="14" height="26.1" rx="7.0" fill="#C8844A" transform="translate(140,90) rotate(-57.5)"/>
+<ellipse cx="158" cy="110" rx="13" ry="5" fill="#7A8080"/><path d="M147,102 Q158,98 169,102 L171,109 Q158,114 145,109 Z" fill="#E2E2E8"/><line x1="153" y1="106" x2="163" y2="106" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.0" y="0" width="14" height="26.1" rx="7.0" fill="#C8844A" transform="translate(154,90) rotate(-57.5)"/>
+<ellipse cx="172" cy="110" rx="13" ry="5" fill="#7A8080"/><path d="M161,102 Q172,98 183,102 L185,109 Q172,114 159,109 Z" fill="#E2E2E8"/><line x1="167" y1="106" x2="177" y2="106" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M100,88 L44,68" stroke="#1D3A5C" stroke-width="16" stroke-linecap="round"/>
+<path d="M100,88 L44,68" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<rect x="-6.0" y="0" width="12" height="34.2" rx="6.0" fill="#C8844A" transform="translate(80,76) rotate(-263.3)"/>
+<rect x="-5.0" y="0" width="10" height="26.1" rx="5.0" fill="#C8844A" transform="translate(46,72) rotate(-265.6)"/>
+<ellipse cx="16" cy="70" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.0" y="0" width="12" height="34.2" rx="6.0" fill="#C8844A" transform="translate(86,80) rotate(-263.3)"/>
+<rect x="-5.0" y="0" width="10" height="28.1" rx="5.0" fill="#C8844A" transform="translate(52,76) rotate(-265.9)"/>
+<ellipse cx="20" cy="74" rx="6" ry="5.5" fill="#C8844A"/>
+<path d="M21,49 Q34,39 47,49" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="34" cy="56" rx="13" ry="15" fill="#C8844A"/><ellipse cx="29.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="38.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="21" cy="57" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="47" cy="57" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="29" y="68" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M34,69 L44,70" stroke="#C8844A" stroke-width="6" stroke-linecap="round"/>
+</svg>`,
+  cobraStretch: `<svg viewBox="0 0 240 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="110" x2="210" y2="110" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="22" y="98" width="190" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M112,94 L222,90" stroke="#1C2D18" stroke-width="20" stroke-linecap="round"/>
+<rect x="-7.0" y="0" width="14" height="18.4" rx="7.0" fill="#C8844A" transform="translate(190,90) rotate(-12.5)"/>
+<ellipse cx="194" cy="114" rx="15" ry="5" fill="#7A8080"/><path d="M180,106 Q190,102 202,106 L204,113 Q190,118 180,113 Z" fill="#E2E2E8"/>
+<rect x="-7.0" y="0" width="14" height="18.4" rx="7.0" fill="#C8844A" transform="translate(208,90) rotate(-12.5)"/>
+<ellipse cx="212" cy="114" rx="15" ry="5" fill="#7A8080"/><path d="M198,106 Q208,102 220,106 L222,113 Q208,118 198,113 Z" fill="#E2E2E8"/>
+<g class="co-up"><path d="M58,80 L112,92" stroke="#1D3A5C" stroke-width="16" stroke-linecap="round"/>
+<path d="M58,80 L112,92" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<ellipse cx="46" cy="74" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-30 46 74)"/>
+<ellipse cx="72" cy="68" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-20 72 68)"/>
+<rect x="-6.0" y="0" width="12" height="27.8" rx="6.0" fill="#C8844A" transform="translate(44,78) rotate(30.3)"/>
+<line x1="20" y1="102" x2="40" y2="102" stroke="#7A8080" stroke-width="4" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="29.5" rx="6.0" fill="#C8844A" transform="translate(68,70) rotate(28.3)"/>
+<line x1="44" y1="96" x2="64" y2="96" stroke="#7A8080" stroke-width="4" stroke-linecap="round"/>
+<rect x="79" y="58" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M71,37 Q84,27 97,37" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="84" cy="44" rx="13" ry="15" fill="#C8844A"/><ellipse cx="79.5" cy="42" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="88.5" cy="42" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="71" cy="45" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="97" cy="45" rx="2.5" ry="3.5" fill="#A06830"/></g>
+</svg>`,
+  quadStretch: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="174" y="38" width="8" height="148" rx="2" fill="currentColor" opacity=".18"/>
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(5 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="32.1" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-84.6)"/>
+<rect x="-5.5" y="0" width="11" height="10.4" rx="5.5" fill="#C8844A" transform="translate(164,65) rotate(-73.3)"/>
+<ellipse cx="178" cy="68" rx="6" ry="5.5" fill="#C8844A"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<rect x="-6.5" y="0" width="13" height="30.0" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(36.9)"/>
+<rect x="-5.5" y="0" width="11" height="26.7" rx="5.5" fill="#C8844A" transform="translate(50,86) rotate(13.0)"/>
+<ellipse cx="42" cy="115" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-7.5)"/>
+<ellipse cx="124" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(124,188) rotate(-11.3)"/>
+<ellipse cx="124" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M113,207 Q124,203 135,207 L137,214 Q124,219 111,214 Z" fill="#E2E2E8"/><line x1="119" y1="211" x2="129" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="30.8" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(13.1)"/>
+<ellipse cx="74" cy="180" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(74,180) rotate(-168.7)"/>
+<ellipse cx="80" cy="156" rx="7" ry="6" fill="#C8844A"/>
+</svg>`,
+  seatedHamstring: `<svg viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="118" x2="210" y2="118" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="16" y="108" width="184" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M80,98 L200,98" stroke="#C8844A" stroke-width="20" stroke-linecap="round"/>
+<path d="M80,98 L200,98" stroke="#1C2D18" stroke-width="20" stroke-linecap="round" opacity=".5"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(188,98) rotate(-11.3)"/>
+<ellipse cx="188" cy="124" rx="13" ry="5" fill="#7A8080"/><path d="M177,116 Q188,112 199,116 L201,123 Q188,128 175,123 Z" fill="#E2E2E8"/><line x1="183" y1="120" x2="193" y2="120" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(203,98) rotate(-11.3)"/>
+<ellipse cx="203" cy="124" rx="13" ry="5" fill="#7A8080"/><path d="M192,116 Q203,112 214,116 L216,123 Q203,128 190,123 Z" fill="#E2E2E8"/><line x1="198" y1="120" x2="208" y2="120" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M76,94 L34,70" stroke="#1D3A5C" stroke-width="16" stroke-linecap="round"/>
+<path d="M76,94 L34,70" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<ellipse cx="56" cy="75" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-20 56 75)"/>
+<ellipse cx="76" cy="78" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-20 76 78)"/>
+<rect x="-6.0" y="0" width="12" height="117.4" rx="6.0" fill="#C8844A" transform="translate(54,78) rotate(-81.2)"/>
+<rect x="-6.0" y="0" width="12" height="113.4" rx="6.0" fill="#C8844A" transform="translate(60,84) rotate(-80.9)"/>
+<ellipse cx="174" cy="96" rx="7" ry="6" fill="#C8844A"/>
+<ellipse cx="176" cy="104" rx="7" ry="6" fill="#C8844A"/>
+<path d="M7,49 Q20,39 33,49" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="20" cy="56" rx="13" ry="15" fill="#C8844A"/><ellipse cx="15.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="24.5" cy="54" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="7" cy="57" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="33" cy="57" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="15" y="68" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M20,69 L34,72" stroke="#C8844A" stroke-width="7" stroke-linecap="round"/>
+</svg>`,
+  hipFlexorStretch: `<svg viewBox="0 0 200 196" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="182" x2="210" y2="182" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="-7.0" y="0" width="14" height="36.9" rx="7.0" fill="#C8844A" transform="translate(148,142) rotate(-12.5)"/>
+<ellipse cx="158" cy="180" rx="9" ry="8" fill="#A06830"/>
+<line x1="146" y1="182" x2="170" y2="182" stroke="#7A8080" stroke-width="4" stroke-linecap="round"/>
+<rect x="-7.0" y="0" width="14" height="54.1" rx="7.0" fill="#C8844A" transform="translate(66,124) rotate(4.2)"/>
+<ellipse cx="60" cy="180" rx="9" ry="8" fill="#A06830"/>
+<ellipse cx="56" cy="187" rx="13" ry="5" fill="#7A8080"/><path d="M45,179 Q56,175 67,179 L69,186 Q56,191 43,186 Z" fill="#E2E2E8"/><line x1="51" y1="183" x2="61" y2="183" stroke="#B8B8C0" stroke-width="1.2"/>
+<g class="hf-body"><path d="M87,21 Q100,11 113,21" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="28" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="26" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="26" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="29" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="29" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="42" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,58 L130,58 L116,114 L84,114 Z" fill="#1D3A5C"/><path d="M100,58 L112,58 L107,114 L100,114 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,114 L116,114 L120,142 L80,142 Z" fill="#1C2D18"/><line x1="100" y1="116" x2="100" y2="142" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<ellipse cx="62" cy="68" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 68)"/>
+<ellipse cx="138" cy="68" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 68)"/>
+<rect x="-6.5" y="0" width="13" height="28.4" rx="6.5" fill="#C8844A" transform="translate(68,64) rotate(39.3)"/>
+<rect x="-5.5" y="0" width="11" height="22.8" rx="5.5" fill="#C8844A" transform="translate(50,86) rotate(15.3)"/>
+<ellipse cx="42" cy="111" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="28.4" rx="6.5" fill="#C8844A" transform="translate(132,64) rotate(-39.3)"/>
+<rect x="-5.5" y="0" width="11" height="22.8" rx="5.5" fill="#C8844A" transform="translate(150,86) rotate(-15.3)"/>
+<ellipse cx="158" cy="111" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-7.0" y="0" width="14" height="17.2" rx="7.0" fill="#C8844A" transform="translate(84,114) rotate(54.5)"/>
+<rect x="-7.0" y="0" width="14" height="42.5" rx="7.0" fill="#C8844A" transform="translate(116,114) rotate(-48.8)"/></g>
+</svg>`,
+  latStretch: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(7.5)"/>
+<ellipse cx="76" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(76,188) rotate(11.3)"/>
+<ellipse cx="68" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M57,207 Q68,203 79,207 L81,214 Q68,219 55,214 Z" fill="#E2E2E8"/><line x1="63" y1="211" x2="73" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-7.5)"/>
+<ellipse cx="124" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(122,188) rotate(-11.3)"/>
+<ellipse cx="122" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M111,207 Q122,203 133,207 L135,214 Q122,219 109,214 Z" fill="#E2E2E8"/><line x1="117" y1="211" x2="127" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M83,148 L117,148" stroke="#1C2D18" stroke-width="20" stroke-linecap="round"/>
+<g class="ls-body"><path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="28.8" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-33.7)"/>
+<rect x="-5.5" y="0" width="11" height="25.3" rx="5.5" fill="#C8844A" transform="translate(148,86) rotate(-18.4)"/>
+<ellipse cx="158" cy="113" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="31.6" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(-214.7)"/>
+<rect x="-5.5" y="0" width="11" height="23.4" rx="5.5" fill="#C8844A" transform="translate(50,36) rotate(-200.0)"/>
+<ellipse cx="40" cy="10" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/></g>
+</svg>`,
+  trapStretch: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="30.0" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(36.9)"/>
+<rect x="-5.5" y="0" width="11" height="26.7" rx="5.5" fill="#C8844A" transform="translate(50,86) rotate(13.0)"/>
+<ellipse cx="42" cy="115" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="19.0" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-108.4)"/>
+<rect x="-5.5" y="0" width="11" height="38.5" rx="5.5" fill="#C8844A" transform="translate(150,56) rotate(-242.1)"/>
+<ellipse cx="113" cy="35" rx="6" ry="5.5" fill="#C8844A"/>
+<g class="nt-head"><path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/></g>
+</svg>`,
+  threadNeedle: `<svg viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="123" x2="210" y2="123" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="24" y="112" width="170" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(96,90) rotate(0.0)"/>
+<ellipse cx="91" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M80,117 Q91,113 102,117 L104,124 Q91,129 78,124 Z" fill="#E2E2E8"/><line x1="86" y1="121" x2="96" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-6.0" y="0" width="12" height="28.0" rx="6.0" fill="#C8844A" transform="translate(152,90) rotate(0.0)"/>
+<ellipse cx="147" cy="125" rx="13" ry="5" fill="#7A8080"/><path d="M136,117 Q147,113 158,117 L160,124 Q147,129 134,124 Z" fill="#E2E2E8"/><line x1="142" y1="121" x2="152" y2="121" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M40,84 L152,88" stroke="#1D3A5C" stroke-width="18" stroke-linecap="round"/>
+<path d="M40,84 L152,88" stroke="#284F7C" stroke-width="5" stroke-linecap="round" opacity=".3"/>
+<path d="M118,86 L152,88" stroke="#1C2D18" stroke-width="16" stroke-linecap="round"/>
+<rect x="-6.0" y="0" width="12" height="25.6" rx="6.0" fill="#C8844A" transform="translate(152,80) rotate(-128.7)"/>
+<rect x="-5.0" y="0" width="10" height="20.0" rx="5.0" fill="#C8844A" transform="translate(172,64) rotate(-126.9)"/>
+<ellipse cx="191" cy="50" rx="6" ry="5.5" fill="#C8844A"/>
+<path d="M9,61 Q22,51 35,61" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="22" cy="68" rx="13" ry="15" fill="#C8844A"/><ellipse cx="17.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="26.5" cy="66" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="9" cy="69" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="35" cy="69" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="17" y="80" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M22,81 L40,84" stroke="#C8844A" stroke-width="7" stroke-linecap="round"/>
+<g class="tn-arm"><rect x="-6.0" y="0" width="12" height="20.0" rx="6.0" fill="#C8844A" transform="translate(40,78) rotate(-233.1)"/>
+<rect x="-5.0" y="0" width="10" height="15.6" rx="5.0" fill="#C8844A" transform="translate(24,66) rotate(-219.8)"/>
+<ellipse cx="11" cy="51" rx="6" ry="5.5" fill="#C8844A"/></g>
+</svg>`,
+  figure4Stretch: `<svg viewBox="0 0 240 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="110" x2="210" y2="110" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="22" y="98" width="188" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M9,45 Q22,35 35,45" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="22" cy="52" rx="13" ry="15" fill="#C8844A"/><ellipse cx="17.5" cy="50" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="26.5" cy="50" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="9" cy="53" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="35" cy="53" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="17" y="65" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M22,66 L120,72" stroke="#1D3A5C" stroke-width="14" stroke-linecap="round"/>
+<path d="M22,66 L120,72" stroke="#284F7C" stroke-width="4" stroke-linecap="round" opacity=".3"/>
+<path d="M102,72 L142,74 L142,94 L102,92 Z" fill="#1C2D18"/>
+<rect x="-6.0" y="0" width="12" height="26.1" rx="6.0" fill="#C8844A" transform="translate(74,70) rotate(4.4)"/>
+<rect x="-6.0" y="0" width="12" height="24.1" rx="6.0" fill="#C8844A" transform="translate(100,72) rotate(4.8)"/>
+<rect x="-7.0" y="0" width="14" height="22.4" rx="7.0" fill="#C8844A" transform="translate(120,78) rotate(-63.4)"/>
+<g class="f4-leg"><rect x="-7.0" y="0" width="14" height="26.8" rx="7.0" fill="#C8844A" transform="translate(140,88) rotate(-116.6)"/>
+<rect x="-6.0" y="0" width="12" height="31.3" rx="6.0" fill="#C8844A" transform="translate(164,76) rotate(-63.4)"/>
+<ellipse cx="194" cy="90" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="19.7" rx="6.0" fill="#C8844A" transform="translate(194,90) rotate(-24.0)"/>
+<ellipse cx="198" cy="115" rx="13" ry="5" fill="#7A8080"/><path d="M187,107 Q198,103 209,107 L211,114 Q198,119 185,114 Z" fill="#E2E2E8"/><line x1="193" y1="111" x2="203" y2="111" stroke="#B8B8C0" stroke-width="1.2"/></g>
+<rect x="-7.0" y="0" width="14" height="19.7" rx="7.0" fill="#C8844A" transform="translate(120,78) rotate(-24.0)"/>
+<rect x="-6.0" y="0" width="12" height="24.2" rx="6.0" fill="#C8844A" transform="translate(128,96) rotate(-114.4)"/>
+</svg>`,
+  calfStretch: `<svg viewBox="0 0 200 218" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="208" x2="210" y2="208" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="6" y="32" width="9" height="155" rx="3" fill="currentColor" opacity=".18"/>
+<g class="cf-body"><path d="M87,27 Q100,17 113,27" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="34" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="32" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="32" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="35" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="35" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="48" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,64 L130,64 L116,120 L84,120 Z" fill="#1D3A5C"/><path d="M100,64 L112,64 L107,120 L100,120 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,120 L116,120 L120,150 L80,150 Z" fill="#1C2D18"/><line x1="100" y1="122" x2="100" y2="150" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<ellipse cx="62" cy="75" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-5 62 75)"/>
+<ellipse cx="138" cy="75" rx="12" ry="9" fill="#1D3A5C" transform="rotate(5 138 75)"/>
+<rect x="-6.5" y="0" width="13" height="46.0" rx="6.5" fill="#C8844A" transform="translate(68,72) rotate(87.5)"/>
+<ellipse cx="16" cy="74" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="110.0" rx="6.5" fill="#C8844A" transform="translate(132,72) rotate(89.0)"/>
+<rect x="-7.5" y="0" width="15" height="26.5" rx="7.5" fill="#C8844A" transform="translate(83,150) rotate(10.9)"/>
+<ellipse cx="76" cy="178" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="22.4" rx="6.0" fill="#C8844A" transform="translate(76,178) rotate(10.3)"/>
+<ellipse cx="68" cy="207" rx="13" ry="5" fill="#7A8080"/><path d="M57,199 Q68,195 79,199 L81,206 Q68,211 55,206 Z" fill="#E2E2E8"/><line x1="63" y1="203" x2="73" y2="203" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="28.2" rx="7.5" fill="#C8844A" transform="translate(117,150) rotate(-22.9)"/>
+<ellipse cx="130" cy="178" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="22.8" rx="6.0" fill="#C8844A" transform="translate(130,178) rotate(-15.3)"/>
+<ellipse cx="132" cy="207" rx="13" ry="5" fill="#7A8080"/><path d="M121,199 Q132,195 143,199 L145,206 Q132,211 119,206 Z" fill="#E2E2E8"/><line x1="127" y1="203" x2="137" y2="203" stroke="#B8B8C0" stroke-width="1.2"/></g>
+</svg>`,
+  deepBreathing: `<svg viewBox="0 0 240 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="110" x2="210" y2="110" stroke="currentColor" stroke-width="1.5" opacity=".2"/>
+<rect x="22" y="98" width="190" height="12" rx="5" fill="#1E3A26" opacity=".55"/>
+<path d="M9,45 Q22,35 35,45" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="22" cy="52" rx="13" ry="15" fill="#C8844A"/><ellipse cx="17.5" cy="50" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="26.5" cy="50" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="9" cy="53" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="35" cy="53" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="17" y="65" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M22,66 L196,70" stroke="#1D3A5C" stroke-width="14" stroke-linecap="round"/>
+<path d="M22,66 L196,70" stroke="#284F7C" stroke-width="4" stroke-linecap="round" opacity=".3"/>
+<path d="M146,68 L196,70 L196,86 L146,84 Z" fill="#1C2D18"/>
+<rect x="-6.0" y="0" width="12" height="28.1" rx="6.0" fill="#C8844A" transform="translate(72,68) rotate(4.1)"/>
+<rect x="-6.0" y="0" width="12" height="26.1" rx="6.0" fill="#C8844A" transform="translate(100,70) rotate(4.4)"/>
+<rect x="-7.0" y="0" width="14" height="28.3" rx="7.0" fill="#C8844A" transform="translate(196,70) rotate(-8.1)"/>
+<ellipse cx="200" cy="104" rx="15" ry="5" fill="#7A8080"/><path d="M186,96 Q196,92 208,96 L210,103 Q196,108 186,103 Z" fill="#E2E2E8"/>
+<rect x="-7.0" y="0" width="14" height="28.3" rx="7.0" fill="#C8844A" transform="translate(210,70) rotate(-8.1)"/>
+<ellipse cx="214" cy="104" rx="15" ry="5" fill="#7A8080"/><path d="M200,96 Q210,92 222,96 L224,103 Q210,108 200,103 Z" fill="#E2E2E8"/>
+<g class="br-chest"><ellipse cx="108" cy="68" rx="38" ry="10" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" fill="none" opacity=".5"/></g>
+<path d="M96,52 L104,62 L112,52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".4"/>
+<path d="M116,52 L124,62 L132,52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".4"/>
+</svg>`,
+  walking: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<g class="wk-al"><rect x="-6.5" y="0" width="13" height="28.4" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(39.3)"/>
+<rect x="-5.5" y="0" width="11" height="26.0" rx="5.5" fill="#C8844A" transform="translate(50,84) rotate(22.6)"/>
+<ellipse cx="38" cy="111" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="wk-ar"><rect x="-6.5" y="0" width="13" height="28.4" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-39.3)"/>
+<rect x="-5.5" y="0" width="11" height="26.0" rx="5.5" fill="#C8844A" transform="translate(150,84) rotate(-22.6)"/>
+<ellipse cx="162" cy="111" rx="6" ry="5.5" fill="#C8844A"/></g>
+<g class="wk-ll"><rect x="-7.5" y="0" width="15" height="39.1" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(13.3)"/>
+<ellipse cx="72" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(72,188) rotate(11.3)"/>
+<ellipse cx="64" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M53,207 Q64,203 75,207 L77,214 Q64,219 51,214 Z" fill="#E2E2E8"/><line x1="59" y1="211" x2="69" y2="211" stroke="#B8B8C0" stroke-width="1.2"/></g>
+<g class="wk-lr"><rect x="-7.5" y="0" width="15" height="39.1" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-13.3)"/>
+<ellipse cx="128" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(128,188) rotate(-11.3)"/>
+<ellipse cx="128" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M117,207 Q128,203 139,207 L141,214 Q128,219 115,214 Z" fill="#E2E2E8"/><line x1="123" y1="211" x2="133" y2="211" stroke="#B8B8C0" stroke-width="1.2"/></g>
+</svg>`,
+  hipOpener: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(82,148) rotate(7.5)"/>
+<ellipse cx="75" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(75,188) rotate(11.3)"/>
+<ellipse cx="67" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M56,207 Q67,203 78,207 L80,214 Q67,219 54,214 Z" fill="#E2E2E8"/><line x1="62" y1="211" x2="72" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(118,148) rotate(-7.5)"/>
+<ellipse cx="125" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(125,188) rotate(-11.3)"/>
+<ellipse cx="125" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M114,207 Q125,203 136,207 L138,214 Q125,219 112,214 Z" fill="#E2E2E8"/><line x1="120" y1="211" x2="130" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="26.9" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(42.0)"/>
+<rect x="-5.5" y="0" width="11" height="23.4" rx="5.5" fill="#C8844A" transform="translate(50,82) rotate(20.0)"/>
+<ellipse cx="40" cy="107" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="26.9" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-42.0)"/>
+<rect x="-5.5" y="0" width="11" height="23.4" rx="5.5" fill="#C8844A" transform="translate(150,82) rotate(-20.0)"/>
+<ellipse cx="160" cy="107" rx="6" ry="5.5" fill="#C8844A"/>
+<g class="lsw"><rect x="-7.5" y="0" width="15" height="30.8" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(13.1)"/>
+<ellipse cx="74" cy="180" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="18.4" rx="6.0" fill="#C8844A" transform="translate(74,180) rotate(-167.5)"/>
+<ellipse cx="80" cy="158" rx="7" ry="6" fill="#C8844A"/></g>
+<circle cx="83" cy="148" r="38" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" fill="none" opacity=".28"/>
+</svg>`,
+  thoracicRotation: `<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/><line x1="100" y1="110" x2="100" y2="148" stroke="#263820" stroke-width="1.5" opacity=".6"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(83,148) rotate(7.5)"/>
+<ellipse cx="76" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(76,188) rotate(11.3)"/>
+<ellipse cx="68" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M57,207 Q68,203 79,207 L81,214 Q68,219 55,214 Z" fill="#E2E2E8"/><line x1="63" y1="211" x2="73" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<rect x="-7.5" y="0" width="15" height="38.3" rx="7.5" fill="#C8844A" transform="translate(117,148) rotate(-7.5)"/>
+<ellipse cx="124" cy="188" rx="9" ry="8" fill="#A06830"/>
+<rect x="-6.0" y="0" width="12" height="20.4" rx="6.0" fill="#C8844A" transform="translate(122,188) rotate(-11.3)"/>
+<ellipse cx="122" cy="215" rx="13" ry="5" fill="#7A8080"/><path d="M111,207 Q122,203 133,207 L135,214 Q122,219 109,214 Z" fill="#E2E2E8"/><line x1="117" y1="211" x2="127" y2="211" stroke="#B8B8C0" stroke-width="1.2"/>
+<path d="M83,148 L117,148" stroke="#1C2D18" stroke-width="20" stroke-linecap="round"/>
+<g class="tr-up"><path d="M70,52 L130,52 L116,108 L84,108 Z" fill="#1D3A5C"/><path d="M100,52 L112,52 L107,108 L100,108 Z" fill="#284F7C" opacity=".2"/>
+<path d="M84,108 L116,108 L120,148 L80,148 Z" fill="#1C2D18"/>
+<ellipse cx="62" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(-15 62 63)"/>
+<ellipse cx="138" cy="63" rx="12" ry="9" fill="#1D3A5C" transform="rotate(15 138 63)"/>
+<rect x="-6.5" y="0" width="13" height="28.0" rx="6.5" fill="#C8844A" transform="translate(68,62) rotate(90.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.0" rx="5.5" fill="#C8844A" transform="translate(40,62) rotate(90.0)"/>
+<ellipse cx="14" cy="62" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="-6.5" y="0" width="13" height="28.0" rx="6.5" fill="#C8844A" transform="translate(132,62) rotate(-90.0)"/>
+<rect x="-5.5" y="0" width="11" height="22.0" rx="5.5" fill="#C8844A" transform="translate(160,62) rotate(-90.0)"/>
+<ellipse cx="186" cy="62" rx="6" ry="5.5" fill="#C8844A"/>
+<rect x="95" y="35" width="10" height="11" rx="5" fill="#C8844A"/>
+<path d="M87,14 Q100,4 113,14" stroke="#1C0E08" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="100" cy="21" rx="13" ry="15" fill="#C8844A"/><ellipse cx="95.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="104.5" cy="19" rx="1.8" ry="1.4" fill="#1C0E08"/><ellipse cx="87" cy="22" rx="2.5" ry="3.5" fill="#A06830"/><ellipse cx="113" cy="22" rx="2.5" ry="3.5" fill="#A06830"/></g>
+<path d="M66,80 Q38,92 36,108" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" fill="none" opacity=".4"/>
+</svg>`,
+};
+/* =============================================
+   WORKOUT DATA
+   ============================================= */
+const WORKOUTS = {
+  monday:{
+    name:'Push & Core', icon:'💪', color:'#5BC874',
+    warmup:[
+      {name:'Arm Circles',dur:60,cue:'Keep shoulders relaxed; big controlled circles forward then back',svg:'armCircles',bilateral:false},
+      {name:'Cross-Chest Swings',dur:60,cue:'Let momentum carry the arms naturally — open wide, swing across',svg:'crossChest',bilateral:false},
+      {name:'Cat-Cow Stretch',dur:60,cue:'Exhale as you round (cat), inhale fully as you extend (cow)',svg:'catCow',bilateral:false}
+    ],
+    circuit:[
+      {name:'Incline Push-Ups',focus:'Chest / Shoulders',work:40,rest:20,cue:'Keep elbows tucked at a 45° angle — not flared',svg:'inclinePushUp'},
+      {name:'Dead Bugs',focus:'Deep Abdominals',work:40,rest:20,cue:'Press lower back firmly into floor — do not let it arch off',svg:'deadBug'},
+      {name:'Glute Bridges',focus:'Glutes / Core',work:40,rest:20,cue:'Drive hips fully up and squeeze glutes hard at the top',svg:'gluteBridge'}
+    ],
+    cooldown:[
+      {name:'Doorway Chest Stretch',dur:60,cue:'Chest up, elbows level with shoulders; feel the stretch across pecs',svg:'doorwayStretch',bilateral:false},
+      {name:"Child's Pose",dur:60,cue:'Reach arms long, let hips sink toward heels, breathe into lower back',svg:'childsPose',bilateral:false},
+      {name:'Cobra Stretch',dur:60,cue:'Keep elbows soft — press gently into floor, hips stay down',svg:'cobraStretch',bilateral:false}
+    ]
+  },
+  tuesday:{
+    name:'Legs & Stability', icon:'🦵', color:'#E8A83A',
+    warmup:[
+      {name:'Leg Swings',dur:90,cue:'Hold wall for balance; swing freely from hip — front/back then side-to-side. Switch legs at 45s',svg:'legSwings',bilateral:true},
+      {name:'Bodyweight Hip Hinge',dur:45,cue:'Hinge from hips only — keep spine long. This is not a squat',svg:'hipHinge',bilateral:false},
+      {name:'Ankle Rolls',dur:45,cue:'Full slow circles both directions — 230 lb frame needs this joint prep',svg:'ankleRolls',bilateral:false}
+    ],
+    circuit:[
+      {name:'Box / Chair Squats',focus:'Quads / Glutes',work:40,rest:20,cue:'Keep knees tracking directly over toes — no caving inward',svg:'chairSquat'},
+      {name:'Forearm Plank',focus:'Core Isometric',work:40,rest:20,cue:'Drop to knees the moment lower back begins to sag',svg:'forearmPlank'},
+      {name:'Step-Back Lunges',focus:'Legs / Hips / Knees',work:40,rest:20,cue:'Step-back lunges reduce anterior knee stress — step well back',svg:'stepBackLunge'}
+    ],
+    cooldown:[
+      {name:'Standing Quad Stretch',dur:60,cue:'Stand tall, pull foot gently to glute. Switch legs at 30s',svg:'quadStretch',bilateral:true},
+      {name:'Seated Hamstring Reach',dur:60,cue:'Hinge forward from hips — do not round the back. Switch sides at 30s',svg:'seatedHamstring',bilateral:true},
+      {name:'Kneeling Hip Flexor Hold',dur:60,cue:'Squeeze the glute of your back leg to deepen the stretch. Switch at 30s',svg:'hipFlexorStretch',bilateral:true}
+    ]
+  },
+  wednesday:{
+    name:'Active Recovery', icon:'🌊', color:'#5BA3D9',
+    warmup:[],
+    circuit:[
+      {name:'Thoracic Rotations',focus:'Thoracic Spine',work:120,rest:0,cue:'Slow, gentle rotations — feel each vertebra move independently',svg:'thoracicRotation'},
+      {name:'Gentle Hip Openers',focus:'Hip Mobility',work:120,rest:0,cue:'No pain — gentle full range of motion circles both directions',svg:'hipOpener'},
+      {name:'Steady Walking',focus:'Active Recovery',work:300,rest:0,cue:'Aim for your 6,700 step baseline today — easy comfortable pace',svg:'walking'}
+    ],
+    cooldown:[]
+  },
+  thursday:{
+    name:'Pull Focus & Core', icon:'🔄', color:'#9B6FE8',
+    warmup:[
+      {name:'Thoracic Windmills',dur:60,cue:'Side-lying: let the top arm follow the rotation of your spine overhead',svg:'thoracicWindmill',bilateral:false},
+      {name:'Scapular Squeezes',dur:60,cue:'Draw shoulder blades firmly together and hold 2 seconds — repeat',svg:'scapSqueezes',bilateral:false},
+      {name:'Reach & Extension',dur:60,cue:'Reach long overhead — feel the lat and side body stretch on each reach',svg:'reachExtension',bilateral:false}
+    ],
+    circuit:[
+      {name:'Incline Doorway Rows',focus:'Upper Back / Posture',work:40,rest:20,cue:'Squeeze shoulder blades together at the top of each pull',svg:'inclineRow'},
+      {name:'Bird-Dog',focus:'Posterior Chain',work:40,rest:20,cue:'Keep hips perfectly level throughout — no twisting or hiking',svg:'birdDog'},
+      {name:'Incline Push-Ups',focus:'Chest / Shoulders',work:40,rest:20,cue:'Keep elbows tucked at a 45° angle — not flared',svg:'inclinePushUp'}
+    ],
+    cooldown:[
+      {name:'Lat & Side Stretch',dur:60,cue:'Keep hips square; reach up and over with one arm. Switch at 30s',svg:'latStretch',bilateral:true},
+      {name:'Upper Trap Release',dur:60,cue:'Gentle tilt only — no pulling on head. Let gravity do the work. Switch at 30s',svg:'trapStretch',bilateral:true},
+      {name:'Thread-the-Needle',dur:60,cue:'Let the shoulder melt toward the floor — breathe into the rotation. Switch at 30s',svg:'threadNeedle',bilateral:true}
+    ]
+  },
+  friday:{
+    name:'Full Body & Core', icon:'⚡', color:'#E85A5A',
+    warmup:[
+      {name:'Gentle Jumping Jacks',dur:45,cue:'Step-jacks variation if needed — step side-to-side instead of jumping',svg:'jumpingJacks',bilateral:false},
+      {name:'Torso Rotations',dur:45,cue:'Hips stay square forward — rotate from the thoracic spine',svg:'torsoRotation',bilateral:false},
+      {name:'Bodyweight Squat Reach',dur:90,cue:'Arms reach forward as you descend — great counterbalance for your long levers',svg:'squatReach',bilateral:false}
+    ],
+    circuit:[
+      {name:'Box Squats',focus:'Quads / Glutes',work:40,rest:20,cue:'Keep knees tracking directly over toes — no caving inward',svg:'chairSquat'},
+      {name:'Forearm Plank + Side Taps',focus:'Anti-Lateral Core',work:40,rest:20,cue:'Keep hips level — resist any side rotation as you tap',svg:'plankSideTap'},
+      {name:'Glute Bridges',focus:'Glutes / Core',work:40,rest:20,cue:'Drive hips fully up and squeeze glutes hard at the top',svg:'gluteBridge'}
+    ],
+    cooldown:[
+      {name:'Figure-4 Glute Stretch',dur:60,cue:'Gently press the bent knee away to deepen. Switch legs at 30s',svg:'figure4Stretch',bilateral:true},
+      {name:'Standing Calf Stretch',dur:60,cue:'Keep heel flat on floor, lean into wall. Switch legs at 30s',svg:'calfStretch',bilateral:true},
+      {name:'Deep Diaphragmatic Breaths',dur:60,cue:'In through nose 4 counts, out through mouth 6 counts — let everything go',svg:'deepBreathing',bilateral:false}
+    ]
+  },
+  saturday:{name:'Rest & Walk',icon:'🚶',color:'#4A6A88',warmup:[],circuit:[],cooldown:[],rest:true},
+  sunday:{name:'Rest & Walk',icon:'🌿',color:'#4A6A88',warmup:[],circuit:[],cooldown:[],rest:true}
+};
+
+const DAY_KEYS=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+const DAY_SHORT=['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+/* =============================================
+   APP STATE
+   ============================================= */
+let S = {
+  selectedDay: null,
+  screen: 'home',
+  phase: 'warmup',
+  phaseExIdx: 0,
+  circuitRound: 1,
+  mode: 'work',
+  timeLeft: 0,
+  totalTime: 0,
+  startTime: 0,
+  paused: true,
+  muted: false,
+  workoutDayKey: null,
+  midpointAlerted: false
+};
+let ticker = null;
+let audioCtx = null;
+
+/* =============================================
+   STORAGE
+   ============================================= */
+function getCompleted(){try{return JSON.parse(localStorage.getItem('cal_done')||'{}');}catch{return {};}}
+function markDone(dayKey){const d=getCompleted();const today=dateKey();if(!d[today])d[today]=[];if(!d[today].includes(dayKey))d[today].push(dayKey);localStorage.setItem('cal_done',JSON.stringify(d));}
+function isDone(dayKey){const d=getCompleted();return Object.values(d).some(arr=>arr.includes?.(dayKey+'_done')||false)||Object.entries(d).some(([k,v])=>v&&v.includes&&v.includes(dayKey));}
+function recordComplete(dayKey){const d=getCompleted();const today=dateKey();d[today+'_'+dayKey]=true;localStorage.setItem('cal_done',JSON.stringify(d));}
+function wasDoneToday(dayKey){const d=getCompleted();const today=dateKey();return !!d[today+'_'+dayKey];}
+function dateKey(){return new Date().toISOString().slice(0,10);}
+function getStreak(){
+  const d=getCompleted();let streak=0;let date=new Date();
+  for(let i=0;i<30;i++){
+    const k=date.toISOString().slice(0,10);
+    const hasWorkout=Object.keys(d).some(key=>key.startsWith(k+'_'));
+    if(hasWorkout)streak++;else if(i>0)break;
+    date.setDate(date.getDate()-1);
+  }
+  return streak;
+}
+
+/* =============================================
+   AUDIO
+   ============================================= */
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function beep(freq=880,dur=0.1,vol=0.3,type='sine'){
+  if(S.muted)return;
+  try{
+    const ctx=getAudio();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.frequency.value=freq;osc.type=type;
+    gain.gain.setValueAtTime(vol,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
+function countdownBeep(){beep(660,0.08,0.25);}
+function workBeep(){beep(1047,0.12,0.4);setTimeout(()=>beep(1319,0.2,0.4),130);}
+function restBeep(){beep(523,0.18,0.35);setTimeout(()=>beep(440,0.22,0.3),200);}
+function phaseBeep(){beep(880,0.1,0.4);setTimeout(()=>beep(1047,0.1,0.4),120);setTimeout(()=>beep(1319,0.25,0.4),240);}
+function midBeep(){beep(660,0.1,0.3);setTimeout(()=>beep(660,0.1,0.3),150);}
+
+/* =============================================
+   HOME SCREEN
+   ============================================= */
+function renderHome(){
+  const today=new Date().getDay();
+  if(S.selectedDay===null)S.selectedDay=today;
+  const d=new Date();
+  document.getElementById('h-date-str').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  renderWeekStrip(today);
+  renderDayCard(S.selectedDay);
+  renderStreak();
+  const dayKey=DAY_KEYS[S.selectedDay];
+  const w=WORKOUTS[dayKey];
+  const startBtn=document.getElementById('start-btn');
+  if(w.rest){startBtn.textContent='Rest Day 🧘';startBtn.className='start-btn rest-mode';}
+  else{startBtn.textContent='Start Workout';startBtn.className='start-btn';startBtn.style.background=w.color;}
+}
+
+function renderWeekStrip(today){
+  const strip=document.getElementById('week-strip');
+  strip.innerHTML='';
+  const completed=getCompleted();
+  const todayKey=dateKey();
+  [1,2,3,4,5,6,0].forEach(di=>{
+    const key=DAY_KEYS[di];
+    const w=WORKOUTS[key];
+    const done=!!completed[todayKey+'_'+key]||Object.keys(completed).some(k=>k.startsWith(todayKey+'_'+key));
+    const selected=S.selectedDay===di;
+    const rest=w.rest;
+    const isToday=di===today;
+    const div=document.createElement('div');
+    div.className='wd'+(selected?' selected':'')+(rest?' rest-day':'')+(done?' done':'')+(isToday?' today':'');
+    div.style.setProperty('--accent',w.color);
+    div.innerHTML=`<div class="wd-lbl">${DAY_SHORT[di]}</div><div class="wd-btn">${w.icon}</div>`;
+    if(!rest)div.onclick=()=>{S.selectedDay=di;renderHome();};
+    strip.appendChild(div);
+  });
+}
+
+function renderDayCard(dayIdx){
+  const key=DAY_KEYS[dayIdx];
+  const w=WORKOUTS[key];
+  const card=document.getElementById('day-card');
+  if(w.rest){
+    card.innerHTML=`<div class="dc-head"><div class="dc-icon">${w.icon}</div><div class="dc-info"><div class="dc-name">${w.name}</div><div class="dc-sub">Maintain your ~6,700 step baseline with light passive stretching</div><div class="dc-badge" style="background:rgba(74,106,136,.2);color:#5BA3D9">Recovery Day</div></div></div>`;
+    return;
+  }
+  const allEx=[...w.circuit.map(e=>e.name)];
+  const badge=`<div class="dc-badge" style="background:${w.color}22;color:${w.color}">${DAY_KEYS[dayIdx].charAt(0).toUpperCase()+DAY_KEYS[dayIdx].slice(1)}</div>`;
+  const wuTime=w.warmup.reduce((a,b)=>a+b.dur,0)/60;
+  const cirTime=9;
+  const cdTime=w.cooldown.reduce((a,b)=>a+b.dur,0)/60;
+  card.innerHTML=`
+    <div class="dc-head">
+      <div class="dc-icon">${w.icon}</div>
+      <div class="dc-info">
+        <div class="dc-name">${w.name}</div>
+        <div class="dc-sub">15-minute targeted session</div>
+        ${badge}
+      </div>
+    </div>
+    <div class="dc-phases">
+      ${w.warmup.length?`<div class="dc-phase"><div class="dc-phase-lbl">Warm-Up</div><div class="dc-phase-val"><span class="dc-phase-dot" style="background:#5BA3D9"></span>${wuTime} min</div></div>`:''}
+      <div class="dc-phase"><div class="dc-phase-lbl">Circuit</div><div class="dc-phase-val"><span class="dc-phase-dot" style="background:#5BC874"></span>9 min × 3</div></div>
+      ${w.cooldown.length?`<div class="dc-phase"><div class="dc-phase-lbl">Cool-Down</div><div class="dc-phase-val"><span class="dc-phase-dot" style="background:#9B6FE8"></span>${cdTime} min</div></div>`:''}
+    </div>
+    <div class="dc-exercises">
+      <div class="dc-ex-title">Circuit Exercises</div>
+      ${allEx.map(n=>`<div class="dc-ex-item"><div class="dc-ex-dot" style="background:#5BC874"></div><div class="dc-ex-name">${n}</div><div class="dc-ex-time">40s work · 20s rest</div></div>`).join('')}
+    </div>`;
+}
+
+function renderStreak(){
+  const s=getStreak();
+  const el=document.getElementById('streak-text');
+  if(s===0)el.innerHTML='Start your first workout today!';
+  else if(s===1)el.innerHTML='<strong>1 day streak</strong> — keep it going!';
+  else el.innerHTML=`<strong>${s}-day streak</strong> — excellent consistency! 💪`;
+}
+
+function toggleVol(){
+  S.muted=!S.muted;
+  document.getElementById('vol-btn').textContent=S.muted?'🔇':'🔊';
+}
+
+/* =============================================
+   WORKOUT START
+   ============================================= */
+function startWorkout(){
+  const key=DAY_KEYS[S.selectedDay];
+  const w=WORKOUTS[key];
+  if(w.rest)return;
+  S.workoutDayKey=key;
+  S.phase=w.warmup.length?'warmup':'circuit';
+  S.phaseExIdx=0;S.circuitRound=1;S.paused=false;S.midpointAlerted=false;
+  setupCurrentStep();
+  showScreen('workout');
+  renderWorkoutUI();
+  startTicker();
+}
+
+function setupCurrentStep(){
+  const w=WORKOUTS[S.workoutDayKey];
+  if(S.phase==='warmup'){
+    const ex=w.warmup[S.phaseExIdx];
+    S.mode='work';S.timeLeft=ex.dur;S.totalTime=ex.dur;
+  } else if(S.phase==='circuit'){
+    const ex=w.circuit[S.phaseExIdx];
+    if(S.mode==='work'){S.timeLeft=ex.work;S.totalTime=ex.work;}
+    else{S.timeLeft=ex.rest;S.totalTime=ex.rest;}
+  } else {
+    const ex=w.cooldown[S.phaseExIdx];
+    S.mode='work';S.timeLeft=ex.dur;S.totalTime=ex.dur;
+  }
+  S.midpointAlerted=false;
+}
+
+/* =============================================
+   TIMER TICK
+   ============================================= */
+function startTicker(){
+  clearInterval(ticker);
+  ticker=setInterval(tick,1000);
+}
+
+function tick(){
+  if(S.paused)return;
+  // 3-beep countdown
+  if(S.timeLeft<=3&&S.timeLeft>0)countdownBeep();
+  // Midpoint alert for bilateral exercises
+  if(!S.midpointAlerted&&S.totalTime>=60&&S.timeLeft===Math.floor(S.totalTime/2)){
+    const ex=currentEx();
+    if(ex&&ex.bilateral)midBeep();
+    S.midpointAlerted=true;
+  }
+  S.timeLeft--;
+  if(S.timeLeft<=0){
+    advanceStep();
+  } else {
+    renderWorkoutUI();
+  }
+}
+
+function currentEx(){
+  const w=WORKOUTS[S.workoutDayKey];
+  if(S.phase==='warmup')return w.warmup[S.phaseExIdx];
+  if(S.phase==='circuit')return w.circuit[S.phaseExIdx];
+  if(S.phase==='cooldown')return w.cooldown[S.phaseExIdx];
+}
+
+function nextExInfo(){
+  const w=WORKOUTS[S.workoutDayKey];
+  if(S.phase==='warmup'){
+    if(S.phaseExIdx+1<w.warmup.length)return{name:w.warmup[S.phaseExIdx+1].name,phase:'Warm-Up'};
+    return{name:w.circuit[0].name,phase:'Circuit Rd 1'};
+  }
+  if(S.phase==='circuit'){
+    if(S.mode==='work')return{name:w.circuit[S.phaseExIdx].name,phase:'Rest'};
+    const ni=S.phaseExIdx+1;
+    if(ni<w.circuit.length)return{name:w.circuit[ni].name,phase:'Round '+S.circuitRound};
+    if(S.circuitRound<3)return{name:w.circuit[0].name,phase:'Round '+(S.circuitRound+1)};
+    return w.cooldown.length?{name:w.cooldown[0].name,phase:'Cool-Down'}:{name:'Complete!',phase:'Done'};
+  }
+  if(S.phase==='cooldown'){
+    if(S.phaseExIdx+1<w.cooldown.length)return{name:w.cooldown[S.phaseExIdx+1].name,phase:'Cool-Down'};
+    return{name:'All done!',phase:'Complete'};
+  }
+  return null;
+}
+
+function advanceStep(){
+  const w=WORKOUTS[S.workoutDayKey];
+  if(S.phase==='warmup'){
+    S.phaseExIdx++;
+    if(S.phaseExIdx>=w.warmup.length){
+      showTransition('Circuit Round 1','3 rounds × 40s work / 20s rest','circuit_start');
+      return;
+    }
+  } else if(S.phase==='circuit'){
+    if(S.mode==='work'){
+      if(w.circuit[S.phaseExIdx].rest>0){S.mode='rest';workBeep();}
+      else{advanceCircuit(w);}
+    } else {
+      advanceCircuit(w);
+    }
+  } else if(S.phase==='cooldown'){
+    S.phaseExIdx++;
+    if(S.phaseExIdx>=w.cooldown.length){clearInterval(ticker);showComplete();return;}
+  }
+  if(S.phase!=='circuit'||S.mode!=='rest'){restBeep();}
+  setupCurrentStep();
+  renderWorkoutUI();
+}
+
+function advanceCircuit(w){
+  S.phaseExIdx++;
+  if(S.phaseExIdx>=w.circuit.length){
+    if(S.circuitRound<3){
+      S.circuitRound++;S.phaseExIdx=0;S.mode='work';
+      showTransition('Round '+S.circuitRound,'Keep it up — '+S.circuitRound+' of 3 rounds','round');
+      return;
+    } else {
+      if(w.cooldown.length){showTransition('Cool-Down','Well done! Time to recover','cooldown_start');return;}
+      else{clearInterval(ticker);showComplete();return;}
+    }
+  }
+  S.mode='work';
+  restBeep();
+}
+
+function showTransition(title,sub,type){
+  const overlay=document.getElementById('transition');
+  document.getElementById('tr-title').textContent=title;
+  document.getElementById('tr-sub').textContent=sub;
+  overlay.classList.add('on');
+  let c=3;
+  document.getElementById('tr-count').textContent=c;
+  const t=setInterval(()=>{
+    c--;
+    if(c>0){document.getElementById('tr-count').textContent=c;countdownBeep();}
+    else{
+      clearInterval(t);
+      overlay.classList.remove('on');
+      if(type==='circuit_start'||type==='round'){S.phase='circuit';}
+      if(type==='cooldown_start'){S.phase='cooldown';S.phaseExIdx=0;}
+      S.mode='work';S.phaseExIdx=(type==='round')?S.phaseExIdx:0;
+      setupCurrentStep();
+      renderWorkoutUI();
+      phaseBeep();
+    }
+  },1000);
+}
+
+/* =============================================
+   WORKOUT UI RENDER
+   ============================================= */
+function renderWorkoutUI(){
+  const w=WORKOUTS[S.workoutDayKey];
+  const ex=currentEx();
+  const isRest=S.phase==='circuit'&&S.mode==='rest';
+  const phaseColor=S.phase==='warmup'?'var(--warmup)':S.phase==='cooldown'?'var(--cooldown)':isRest?'var(--rest)':'var(--work)';
+  const phaseName=S.phase==='warmup'?'WARM-UP':S.phase==='cooldown'?'COOL-DOWN':isRest?'REST':'CIRCUIT';
+
+  document.getElementById('w-phase-lbl').textContent=phaseName;
+  document.getElementById('w-phase-lbl').style.color=phaseColor;
+  document.getElementById('w-round').textContent=S.phase==='circuit'?'Round '+S.circuitRound+' / 3':'';
+
+  // Progress bar (total session)
+  const totalSec=900;
+  let elapsed=0;
+  if(S.phase==='warmup')elapsed=w.warmup.slice(0,S.phaseExIdx).reduce((a,b)=>a+b.dur,0)+(S.totalTime-S.timeLeft);
+  else if(S.phase==='circuit'){
+    elapsed=w.warmup.reduce((a,b)=>a+b.dur,0);
+    const exTime=(w.circuit[0].work+w.circuit[0].rest);
+    elapsed+=(S.circuitRound-1)*w.circuit.length*exTime+S.phaseExIdx*exTime+(S.mode==='rest'?w.circuit[S.phaseExIdx].work:0)+(S.totalTime-S.timeLeft);
+  } else {
+    elapsed=w.warmup.reduce((a,b)=>a+b.dur,0)+540+w.cooldown.slice(0,S.phaseExIdx).reduce((a,b)=>a+b.dur,0)+(S.totalTime-S.timeLeft);
+  }
+  document.getElementById('prog-fill').style.width=Math.min(100,(elapsed/totalSec)*100)+'%';
+  document.getElementById('prog-fill').style.background=phaseColor;
+
+  // Phase pill
+  const pill=document.getElementById('phase-pill');
+  pill.textContent=S.phase==='warmup'?'⚡ Warm-Up':S.phase==='cooldown'?'🌊 Cool-Down':isRest?'💤 Rest & Recover':'💪 Circuit — Round '+S.circuitRound;
+  pill.style.background=phaseColor+'18';
+  pill.style.borderColor=phaseColor+'55';
+  pill.style.color=phaseColor;
+
+  if(isRest){
+    document.getElementById('ex-area').style.display='none';
+    const rs=document.getElementById('rest-screen');
+    rs.classList.add('active');
+    document.getElementById('rest-timer').textContent=S.timeLeft;
+    document.getElementById('rest-timer').style.color=S.timeLeft<=5?'var(--rest)':'var(--text)';
+    const nextCirc=w.circuit[(S.phaseExIdx+1)%w.circuit.length];
+    const isNextRound=(S.phaseExIdx+1)>=w.circuit.length;
+    document.getElementById('rest-up-name').textContent=isNextRound?w.circuit[0].name+' (Round '+(S.circuitRound+1)+')':nextCirc.name;
+    document.getElementById('rest-bar-fill').style.width=(S.timeLeft/S.totalTime)*100+'%';
+    document.getElementById('rest-bar-fill').style.background='var(--rest)';
+  } else {
+    document.getElementById('rest-screen').classList.remove('active');
+    document.getElementById('ex-area').style.display='block';
+    document.getElementById('ex-name').textContent=ex.name;
+    document.getElementById('ex-focus').textContent=ex.focus||'';
+    document.getElementById('anim-svg').innerHTML=SVG[ex.svg]||SVG.walking;
+    document.getElementById('anim-svg').style.color=phaseColor;
+    const chip=document.getElementById('mode-chip');
+    if(S.phase==='circuit'&&S.mode==='work'){chip.style.display='block';chip.textContent='WORK';chip.style.background=phaseColor+'30';chip.style.color=phaseColor;}
+    else chip.style.display='none';
+    const t=document.getElementById('timer-num');
+    t.textContent=S.timeLeft<10?'0'+S.timeLeft:S.timeLeft;
+    t.style.color=S.timeLeft<=5?'var(--rest)':phaseColor;
+    document.getElementById('timer-bar-fill').style.width=(S.timeLeft/S.totalTime)*100+'%';
+    document.getElementById('timer-bar-fill').style.background=phaseColor;
+    const cue=ex.cue||'';
+    document.getElementById('cue-txt').textContent=cue;
+    // Bilateral midpoint hint
+    if(ex.bilateral&&S.totalTime>=60){
+      const mid=Math.floor(S.totalTime/2);
+      if(S.timeLeft>mid)document.getElementById('timer-sub').textContent='first side';
+      else document.getElementById('timer-sub').textContent='switch sides at '+mid+'s ↔';
+    } else {
+      document.getElementById('timer-sub').textContent='seconds';
+    }
+    const nxt=nextExInfo();
+    document.getElementById('next-hint').innerHTML=nxt&&nxt.name!=='All done!'&&nxt.name!=='Complete!'?`Next → <strong>${nxt.name}</strong> <span style="color:var(--muted)">(${nxt.phase})</span>`:'Almost there! 🏁';
+  }
+
+  // Play/pause button
+  const playBtn=document.getElementById('w-play');
+  const playIcon=document.getElementById('play-icon');
+  const playLbl=document.getElementById('play-lbl');
+  if(S.paused){playBtn.style.background='var(--warmup)';playBtn.style.color='#0c1a33';playIcon.textContent='▶';playLbl.textContent='Resume';}
+  else{playBtn.style.background='var(--work)';playBtn.style.color='#052e16';playIcon.textContent='⏸';playLbl.textContent='Pause';}
+}
+
+function togglePause(){
+  S.paused=!S.paused;
+  if(!S.paused&&ticker===null)startTicker();
+  renderWorkoutUI();
+}
+
+function skipStep(){
+  if(confirm('Skip this step?')){S.timeLeft=1;tick();}
+}
+
+/* =============================================
+   COMPLETE SCREEN
+   ============================================= */
+function showComplete(){
+  const w=WORKOUTS[S.workoutDayKey];
+  recordComplete(S.workoutDayKey);
+  phaseBeep();setTimeout(phaseBeep,300);
+  document.getElementById('comp-sub').textContent=`${w.icon} ${w.name} — ${new Date().toLocaleDateString('en-US',{weekday:'long'})}`;
+  document.getElementById('comp-ex-count').textContent=(w.warmup.length+w.circuit.length+w.cooldown.length);
+  document.getElementById('comp-rounds').textContent=w.circuit.length?'3':'—';
+  document.getElementById('rule2-txt').innerHTML='<strong>Rule of 2:</strong> When you can complete all 40 seconds of any circuit exercise with perfect form for <strong>two consecutive workouts without joint discomfort</strong>, progress it slightly — lower the push-up incline, pause 2 seconds at the bottom of the squat, or add 1–2 reps.';
+  showScreen('complete');
+}
+
+function finishWorkout(){markDone(S.workoutDayKey);goHome();}
+function goHome(){showScreen('home');S.workoutDayKey=null;renderHome();}
+function confirmBack(){if(confirm('End workout and return to home?')){clearInterval(ticker);ticker=null;goHome();}}
+function showScreen(s){
+  ['home','workout','complete'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.display=(id===s)?'flex':'none';
+  });
+  S.screen=s;
+}
+
+/* =============================================
+   INIT
+   ============================================= */
+function init(){
+  const today=new Date().getDay();
+  S.selectedDay=today;
+  showScreen('home');
+  renderHome();
+  // Resume audio context on first tap
+  document.addEventListener('touchstart',()=>{try{if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}},{once:true});
+  document.addEventListener('click',()=>{try{if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}},{once:true});
+}
+
+init();
+</script>
+</body>
+</html>
