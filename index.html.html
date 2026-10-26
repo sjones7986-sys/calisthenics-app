@@ -91,7 +91,14 @@ button{cursor:pointer;font-family:inherit}
 .ex-focus{font-size:.75rem;color:var(--muted);text-align:center;font-weight:500;margin-bottom:14px;padding:0 18px}
 
 .anim-box{width:186px;height:186px;margin:0 auto 14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;flex-shrink:0}
-.anim-box svg{width:78%;height:78%}
+#anim-svg{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#anim-svg svg{width:78%;height:78%}
+#anim-svg img,#anim-svg video{width:100%;height:100%;object-fit:contain}
+#anim-svg .visual-message{padding:16px;text-align:center;font-size:.8rem;line-height:1.5}
+#anim-svg.visual-paused *{animation-play-state:paused!important}
+#anim-svg.visual-static *{animation:none!important}
+#anim-svg.visual-static .bd-fb,#anim-svg.visual-static .db-fb,#anim-svg.visual-static .sl-fb{display:none}
+@media(prefers-reduced-motion:reduce){.comp-ring{animation:none}}
 .mode-chip{position:absolute;top:9px;right:9px;padding:3px 9px;border-radius:20px;font-size:.58rem;font-weight:800;letter-spacing:1.5px}
 
 .timer-wrap{text-align:center;margin-bottom:8px;position:relative}
@@ -400,6 +407,7 @@ button{cursor:pointer;font-family:inherit}
 
 </div><!-- #app -->
 
+<script src="assets/manifest.js"></script>
 <script>
 /* =============================================
    SVG ANIMATION LIBRARY
@@ -1688,6 +1696,131 @@ function showTransition(title,sub,type){
   },1000);
 }
 
+/* Local media contract: assets/manifest.js. No library, fetch, or build step needed. */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let visualKey = null;
+let visualCleanup = () => {};
+
+function localAssetPath(path, folder, extension){
+  // Limit media to simple repository-relative paths, including on GitHub Pages.
+  return typeof path==='string' &&
+    new RegExp('^assets/'+folder+'/[a-z0-9-]+\\.'+extension+'$').test(path);
+}
+
+function renderExerciseVisual(ex, color){
+  const host=document.getElementById('anim-svg');
+  host.style.color=color;
+  const key=ex.svg+'|'+ex.name+'|'+reducedMotion.matches;
+  if(key===visualKey)return; // Timer updates must not recreate/restart media.
+  visualCleanup();
+  visualKey=key;
+  let active=true;
+  let loadTimer=null;
+  let video=null;
+  const asset=(window.EXERCISE_ASSETS||{})[ex.svg]||{};
+  host.setAttribute('role','img');
+  host.setAttribute('aria-label',ex.name+'. '+(asset.label||'Movement illustration.'));
+  host.setAttribute('aria-describedby','cue-txt');
+  host.classList.toggle('visual-static',reducedMotion.matches);
+
+  function showInline(){
+    if(!active)return;
+    const svg=SVG[asset.inlineSvg||ex.svg];
+    host.replaceChildren();
+    if(svg){
+      // Only the existing, trusted inline SVG library is inserted as markup.
+      host.innerHTML=svg;
+      host.firstElementChild.setAttribute('aria-hidden','true');
+    } else {
+      const message=document.createElement('span');
+      message.className='visual-message';
+      message.textContent='Illustration unavailable. Follow the form cue below.';
+      host.appendChild(message);
+    }
+    host.dataset.visual='inline';
+    syncVisualPlayback();
+  }
+  function showImage(){
+    if(!active)return;
+    if(!asset.imageReady||!localAssetPath(asset.image,'images','png'))return;
+    const img=new Image();
+    img.alt='';
+    img.setAttribute('aria-hidden','true');
+    img.onload=()=>{
+      if(!active)return;
+      host.replaceChildren(img);
+      host.dataset.visual='image';
+    };
+    // The inline fallback stays visible while loading or if the PNG fails.
+    img.src=asset.image;
+  }
+  function fallback(){
+    if(!active)return;
+    clearTimeout(loadTimer);
+    if(video){video.pause();video.removeAttribute('src');video.load();video=null;}
+    showInline();
+    showImage();
+  }
+  visualCleanup=()=>{
+    active=false;
+    clearTimeout(loadTimer);
+    if(video){video.pause();video.removeAttribute('src');video.load();}
+  };
+  showInline();
+  if(reducedMotion.matches||!asset.animationReady||
+      !localAssetPath(asset.animation,'animations','mp4')){
+    showImage();
+    return;
+  }
+  video=document.createElement('video');
+  video.muted=true;
+  video.loop=true;
+  video.playsInline=true;
+  video.preload='auto';
+  video.setAttribute('aria-hidden','true');
+  video.addEventListener('loadeddata',()=>{
+    if(!active||!video)return;
+    clearTimeout(loadTimer);
+    host.replaceChildren(video);
+    host.dataset.visual='video';
+    syncVisualPlayback();
+  },{once:true});
+  video.addEventListener('error',()=>{if(video)fallback();},{once:true});
+  // A stalled request should never leave an empty tile or hold up the workout.
+  loadTimer=setTimeout(fallback,8000);
+  video.src=asset.animation;
+  video.load();
+  video.visualFallback=fallback;
+}
+
+function syncVisualPlayback(){
+  const host=document.getElementById('anim-svg');
+  const stopped=S.paused||S.screen!=='workout'||
+    (S.phase==='circuit'&&S.mode==='rest')||reducedMotion.matches;
+  host.classList.toggle('visual-paused',stopped);
+  const video=host.querySelector('video');
+  if(!video)return;
+  if(stopped){video.pause();return;}
+  if(video.paused&&!video.visualPlayPending){
+    video.visualPlayPending=true;
+    const attempt=video.play();
+    if(attempt)attempt.then(()=>{
+      video.visualPlayPending=false;
+      // A pause or screen change may have happened while play() was pending.
+      if(S.paused||S.screen!=='workout'||(S.phase==='circuit'&&S.mode==='rest'))video.pause();
+    }).catch(()=>{
+      video.visualPlayPending=false;
+      if(host.contains(video))video.visualFallback();
+    });
+    else video.visualPlayPending=false;
+  }
+}
+
+reducedMotion.addEventListener('change',()=>{
+  if(S.workoutDayKey&&currentEx())renderExerciseVisual(currentEx(),document.getElementById('anim-svg').style.color);
+  syncVisualPlayback();
+});
+
 /* =============================================
    WORKOUT UI RENDER
    ============================================= */
@@ -1739,8 +1872,7 @@ function renderWorkoutUI(){
     document.getElementById('ex-area').style.display='block';
     document.getElementById('ex-name').textContent=ex.name;
     document.getElementById('ex-focus').textContent=ex.focus||'';
-    document.getElementById('anim-svg').innerHTML=SVG[ex.svg]||SVG.walking;
-    document.getElementById('anim-svg').style.color=phaseColor;
+    renderExerciseVisual(ex,phaseColor);
     const chip=document.getElementById('mode-chip');
     if(S.phase==='circuit'&&S.mode==='work'){chip.style.display='block';chip.textContent='WORK';chip.style.background=phaseColor+'30';chip.style.color=phaseColor;}
     else chip.style.display='none';
@@ -1762,6 +1894,8 @@ function renderWorkoutUI(){
     const nxt=nextExInfo();
     document.getElementById('next-hint').innerHTML=nxt&&nxt.name!=='All done!'&&nxt.name!=='Complete!'?`Next → <strong>${nxt.name}</strong> <span style="color:var(--muted)">(${nxt.phase})</span>`:'Almost there! 🏁';
   }
+
+  syncVisualPlayback();
 
   // Play/pause button
   const playBtn=document.getElementById('w-play');
@@ -1804,6 +1938,7 @@ function showScreen(s){
     el.style.display=(id===s)?'flex':'none';
   });
   S.screen=s;
+  syncVisualPlayback();
 }
 
 /* =============================================
